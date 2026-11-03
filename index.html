@@ -1,0 +1,226 @@
+<title>별일없지?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: one phone-width column; a role switcher on top, each role gets its own screen. Parent screen = two giant targets only. */
+:root{
+  --bg:#EEF3F0; --surface:#FFFFFF; --ink:#14231D; --muted:#56675F; --line:#D5E0DA;
+  --accent:#1D7F57; --accent-ink:#FFFFFF; --accent-soft:#DCEFE5;
+  --warn:#B86A10; --warn-soft:#FBEBD3; --voice:#2F5DA8; --voice-soft:#E1E9F7;
+  --display:"Do Hyeon","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1613; --surface:#17221E; --ink:#E6EFEA; --muted:#9AADA4; --line:#28372F;
+  --accent:#43BE85; --accent-ink:#06130D; --accent-soft:#16352A;
+  --warn:#F0A64A; --warn-soft:#3A2A14; --voice:#7FA6EA; --voice-soft:#1B2840; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1613; --surface:#17221E; --ink:#E6EFEA; --muted:#9AADA4; --line:#28372F;
+  --accent:#43BE85; --accent-ink:#06130D; --accent-soft:#16352A;
+  --warn:#F0A64A; --warn-soft:#3A2A14; --voice:#7FA6EA; --voice-soft:#1B2840; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--display);font-weight:400;font-size:32px;margin:0;letter-spacing:.5px}
+.tag{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+.roles button{font:inherit;font-size:14px;font-weight:500;border:0;background:none;color:var(--muted);padding:10px 4px;border-radius:10px;cursor:pointer}
+.roles button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--voice);outline-offset:2px}
+.screen{display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.greet{font-family:var(--display);font-size:28px;line-height:1.25;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:0;font-size:15px}
+.num{font-variant-numeric:tabular-nums}
+
+/* Parent: giant check-in button */
+.big{align-self:center;width:min(76vw,260px);aspect-ratio:1;max-width:100%;border-radius:50%;border:0;cursor:pointer;
+  background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-size:40px;line-height:1.15;
+  box-shadow:0 10px 0 color-mix(in srgb,var(--accent) 60%,#000);transition:transform .08s, box-shadow .08s;margin-block:8px 18px}
+.big:active{transform:translateY(8px);box-shadow:0 2px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.big small{display:block;font-family:var(--body);font-size:16px;font-weight:500;opacity:.85;margin-top:6px}
+.big.done{background:var(--accent-soft);color:var(--accent);box-shadow:none;transform:none;cursor:default}
+.mic{width:100%;border:2px solid var(--voice);background:var(--voice-soft);color:var(--voice);font:inherit;font-size:22px;font-weight:700;
+  border-radius:18px;padding:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px}
+.mic.rec{background:var(--voice);color:var(--surface)}
+.dot{width:14px;height:14px;border-radius:50%;background:currentColor}
+.mic.rec .dot{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){.mic.rec .dot{animation:none}.big{transition:none}}
+
+/* Status (me / family) */
+.status{display:flex;gap:14px;align-items:center}
+.pill{flex:none;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-family:var(--display);font-size:26px}
+.ok .pill{background:var(--accent-soft);color:var(--accent)}
+.wait .pill{background:var(--line);color:var(--muted)}
+.late .pill{background:var(--warn-soft);color:var(--warn)}
+.status h2{margin:0;font-size:20px;font-weight:700}
+.status p{margin:0;color:var(--muted);font-size:14px}
+.late h2{color:var(--warn)}
+.clocks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.clock{border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.clock span{display:block;font-size:12px;color:var(--muted);letter-spacing:.04em}
+.clock b{font-size:20px;font-variant-numeric:tabular-nums}
+.rule{font-size:14px;color:var(--muted);margin:0;border-top:1px dashed var(--line);padding-top:12px}
+.rule b{color:var(--ink)}
+
+/* Messages */
+.msgs h3{margin:0;font-size:15px;color:var(--muted);font-weight:500;letter-spacing:.04em}
+.msg{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.msg:first-of-type{border-top:0}
+.play{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--voice);color:var(--surface);cursor:pointer;font-size:18px}
+.msg div{min-width:0;flex:1}
+.msg strong{display:block;font-size:16px}
+.msg em{font-style:normal;font-size:13px;color:var(--muted)}
+.bars{display:flex;gap:2px;align-items:center;height:18px;margin-top:4px}
+.bars i{width:3px;border-radius:2px;background:var(--voice);opacity:.55}
+.ex{font-size:11px;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.demo{display:flex;flex-wrap:wrap;gap:8px}
+.demo button{font:inherit;font-size:13px;border:1px dashed var(--line);background:none;color:var(--muted);border-radius:10px;padding:8px 10px;cursor:pointer}
+.note{font-size:13px;color:var(--muted);margin:0;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+</style>
+
+<div class="wrap">
+  <div class="brand"><h1>별일없지?</h1><span class="tag">시안 v0.1 · 화면 미리보기</span></div>
+
+  <div class="roles" role="tablist">
+    <button id="tab-parent" role="tab" aria-selected="true" data-role="parent">부모님</button>
+    <button id="tab-me" role="tab" aria-selected="false" data-role="me">나 (토론토)</button>
+    <button id="tab-family" role="tab" aria-selected="false" data-role="family">한국 가족</button>
+  </div>
+
+  <!-- 부모님 화면 -->
+  <section class="screen" id="parent">
+    <div class="panel">
+      <p class="greet" id="pGreet">어머니, 좋은 아침이에요</p>
+      <p class="sub num" id="pDate"></p>
+      <button class="big" id="checkBtn">별일<br>없어요<small>한 번 눌러 주세요</small></button>
+      <button class="mic" id="pMic"><span class="dot"></span><span>목소리 남기기</span></button>
+    </div>
+    <div class="panel msgs"><h3>가족이 보낸 목소리</h3><div class="list" data-viewer="parent"></div></div>
+  </section>
+
+  <!-- 나 (토론토) -->
+  <section class="screen" id="me" hidden>
+    <div class="panel">
+      <div class="status" data-status></div>
+      <div class="clocks">
+        <div class="clock"><span>한국 (부모님)</span><b class="num" data-kst></b></div>
+        <div class="clock"><span>토론토 (나)</span><b class="num" data-tor></b></div>
+      </div>
+      <p class="rule" data-rule></p>
+    </div>
+    <div class="panel msgs"><h3>음성 메시지</h3><div class="list" data-viewer="me"></div></div>
+    <button class="mic" data-mic="me"><span class="dot"></span><span>부모님께 목소리 보내기</span></button>
+  </section>
+
+  <!-- 한국 가족 -->
+  <section class="screen" id="family" hidden>
+    <div class="panel">
+      <div class="status" data-status></div>
+      <div class="clocks">
+        <div class="clock"><span>지금 한국</span><b class="num" data-kst></b></div>
+        <div class="clock"><span>토론토 (석우)</span><b class="num" data-tor></b></div>
+      </div>
+      <p class="rule" data-rule></p>
+    </div>
+    <div class="panel msgs"><h3>음성 메시지</h3><div class="list" data-viewer="family"></div></div>
+    <button class="mic" data-mic="family"><span class="dot"></span><span>부모님께 목소리 보내기</span></button>
+  </section>
+
+  <div class="panel">
+    <p class="sub" style="font-size:13px">시연용 버튼 (실제 앱에는 없음)</p>
+    <div class="demo">
+      <button id="demoLate">마감 지난 상황 보기</button>
+      <button id="demoReset">처음 상태로</button>
+    </div>
+  </div>
+  <p class="note">이 시안은 화면과 흐름 확인용입니다. 실제 녹음·알림은 서버 연결 단계에서 붙입니다.</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const DEADLINE_KST = 11; // 한국 시간 오전 11시까지 안부 없으면 알림
+const S = { checked:null, late:false, msgs:[] };
+const seed = () => [{from:'동생', to:'parent', len:18, when:'어제 저녁', ex:true},
+                    {from:'어머니', to:'all', len:24, when:'어제 오전', ex:true}];
+S.msgs = seed();
+
+const fmt = (tz, opt) => new Intl.DateTimeFormat('ko-KR', {timeZone:tz, ...opt});
+const kstParts = d => Object.fromEntries(fmt('Asia/Seoul',{year:'numeric',month:'numeric',day:'numeric',hour:'numeric',hourCycle:'h23'}).formatToParts(d).map(p=>[p.type,p.value]));
+function deadlineDate(now){ const p=kstParts(now); return new Date(Date.UTC(+p.year, +p.month-1, +p.day, DEADLINE_KST-9, 0)); }
+const timeKo = (tz,d) => fmt(tz,{hour:'numeric',minute:'2-digit'}).format(d);
+const dayKo = (tz,d) => fmt(tz,{month:'long',day:'numeric',weekday:'short'}).format(d);
+
+function render(){
+  const now = new Date();
+  document.getElementById('pDate').textContent = '한국 ' + dayKo('Asia/Seoul',now) + ' · ' + timeKo('Asia/Seoul',now);
+  const h = +kstParts(now).hour;
+  document.getElementById('pGreet').textContent = h<11 ? '어머니, 좋은 아침이에요' : h<17 ? '어머니, 점심 잘 드셨어요?' : '어머니, 오늘 하루 어떠셨어요?';
+  const btn = document.getElementById('checkBtn');
+  if (S.checked){ btn.classList.add('done'); btn.innerHTML = '전했어요<small>' + timeKo('Asia/Seoul',S.checked) + ' 안부 완료</small>'; }
+  else { btn.classList.remove('done'); btn.innerHTML = '별일<br>없어요<small>한 번 눌러 주세요</small>'; }
+
+  const dl = deadlineDate(now);
+  document.querySelectorAll('[data-kst]').forEach(e=>e.textContent = timeKo('Asia/Seoul',now));
+  document.querySelectorAll('[data-tor]').forEach(e=>e.textContent = timeKo('America/Toronto',now));
+  document.querySelectorAll('[data-rule]').forEach(e=>e.innerHTML =
+    '안부 마감: <b>한국 오전 '+DEADLINE_KST+'시</b> = 토론토 <b>' + dayKo('America/Toronto',dl) + ' ' + timeKo('America/Toronto',dl) + '</b>. 이때까지 버튼이 안 눌리면 알림이 갑니다.');
+  let cls, icon, title, desc;
+  if (S.checked){ cls='ok'; icon='✓'; title='오늘 안부 도착'; desc='한국 ' + timeKo('Asia/Seoul',S.checked) + '에 어머니가 누르셨어요'; }
+  else if (S.late){ cls='late'; icon='!'; title='아직 안부가 없어요'; desc='마감이 지났어요. 전화 한 통 드려 보세요'; }
+  else { cls='wait'; icon='…'; title='오늘 안부 기다리는 중'; desc='한국 오전 '+DEADLINE_KST+'시까지 기다려요'; }
+  document.querySelectorAll('[data-status]').forEach(e=>{ e.className='status '+cls;
+    e.innerHTML = '<div class="pill">'+icon+'</div><div><h2>'+title+'</h2><p>'+desc+'</p></div>'; });
+
+  document.querySelectorAll('.list').forEach(list=>{
+    const v = list.dataset.viewer;
+    const me = v==='parent'?'어머니':v==='me'?'나':'동생';
+    const items = S.msgs.filter(m => m.from!==me && (m.to==='all' || m.to==='parent' && v==='parent' || v!=='parent'));
+    list.innerHTML = items.length ? items.map(m => {
+      const bars = Array.from({length:22},(_,i)=>'<i style="height:'+(4+Math.abs(Math.sin(i*1.7+m.len))*14).toFixed(0)+'px"></i>').join('');
+      const from = (v==='parent' && m.from==='나') ? '석우 (토론토)' : m.from;
+      return '<div class="msg"><button class="play" aria-label="'+from+' 음성 재생">▶</button><div><strong>'+from+(m.ex?'<span class="ex">예시</span>':'')+
+        '</strong><em class="num">'+m.when+' · 0:'+String(m.len).padStart(2,'0')+'</em><div class="bars">'+bars+'</div></div></div>'; }).join('')
+      : '<p class="sub">아직 받은 메시지가 없어요</p>';
+  });
+}
+
+function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2200); }
+
+document.querySelectorAll('.roles button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.roles button').forEach(x=>x.setAttribute('aria-selected', x===b));
+  ['parent','me','family'].forEach(id=>document.getElementById(id).hidden = id!==b.dataset.role);
+}));
+document.getElementById('checkBtn').addEventListener('click',()=>{
+  if (S.checked) return; S.checked = new Date(); S.late=false; render();
+  toast('안부가 토론토와 가족에게 전해졌어요');
+});
+
+function wireMic(btn, from){
+  let t0=null, iv=null; const label = btn.querySelector('span:last-child'); const orig = label.textContent;
+  btn.addEventListener('click',()=>{
+    if (!t0){ t0=Date.now(); btn.classList.add('rec');
+      iv=setInterval(()=>{ const s=Math.min(30,Math.round((Date.now()-t0)/1000)); label.textContent='녹음 중 0:'+String(s).padStart(2,'0')+' · 눌러서 보내기'; if(s>=30) btn.click(); },250);
+      label.textContent='녹음 중 0:00 · 눌러서 보내기'; }
+    else { clearInterval(iv); const len=Math.max(1,Math.min(30,Math.round((Date.now()-t0)/1000))); t0=null;
+      btn.classList.remove('rec'); label.textContent=orig;
+      S.msgs.unshift({from, to: from==='어머니'?'all':'parent', len, when:'방금'}); render();
+      toast('목소리를 보냈어요 (시안: 실제 녹음은 다음 단계)'); }
+  });
+}
+wireMic(document.getElementById('pMic'),'어머니');
+wireMic(document.querySelector('[data-mic="me"]'),'나');
+wireMic(document.querySelector('[data-mic="family"]'),'동생');
+
+document.getElementById('demoLate').addEventListener('click',()=>{ S.checked=null; S.late=true; render(); document.getElementById('tab-me').click(); });
+document.getElementById('demoReset').addEventListener('click',()=>{ S.checked=null; S.late=false; S.msgs=seed(); render(); });
+render(); setInterval(render, 30000);
+</script>
