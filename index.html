@@ -112,6 +112,15 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
 .chev{color:var(--muted);font-size:20px}
 .alert-all{margin:0;font-size:14px;color:var(--muted);display:flex;align-items:center;gap:8px}
 .alert-all b{color:var(--ok)}
+.store{background:var(--bg);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.store-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:15px}
+.store-top b{font-family:var(--display);font-weight:400;font-size:20px;font-variant-numeric:tabular-nums}
+.meter{height:14px;border-radius:99px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:var(--ok);transition:width .3s}
+.meter.mid i{background:var(--sun-deep)} .meter.high i{background:var(--warn)}
+.store p{margin:0;font-size:13px;color:var(--muted)}
+.keep{font-size:12px;font-weight:700;color:var(--muted);margin-left:4px}
+.limit{margin:-6px 0 0;font-size:13px;color:var(--muted);text-align:center}
 .btn{font:inherit;font-family:var(--display);font-size:19px;border:0;border-radius:99px;padding:13px 18px;cursor:pointer}
 .btn-sun{background:var(--sun);color:var(--sun-ink);box-shadow:0 5px 0 var(--sun-deep)}
 .btn-sun:disabled{opacity:.45;cursor:not-allowed}
@@ -151,7 +160,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
       <circle cx="40" cy="47" r="4" fill="var(--sun-ink)"/><circle cx="60" cy="47" r="4" fill="var(--sun-ink)"/>
       <path d="M41 58q9 8 18 0" stroke="var(--sun-ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
     </svg>
-    <h1>별일없지?</h1><span class="tag">시안 v0.3</span>
+    <h1>별일없지?</h1><span class="tag">시안 v0.4</span>
   </div>
 
   <div class="roles" role="tablist">
@@ -166,7 +175,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
       <p class="greet" id="pGreet">어머니, 좋은 아침이에요</p>
       <p class="sub num date" id="pDate"></p>
       <button class="big" id="checkBtn"></button>
-      <button class="mic" id="pMic"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>목소리 남기기</span></button>
+      <button class="mic" id="pMic" data-limit><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>목소리 남기기</span></button>
+      <p class="limit">한 번에 3분까지 남길 수 있어요</p>
     </div>
     <div class="panel msgs"><h3>가족이 보낸 목소리</h3><div class="list" data-viewer="parent"></div></div>
   </section>
@@ -185,6 +195,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
     <div class="panel" id="famPanel">
       <div class="fam-head"><h3>우리 가족 관리</h3><span class="count" id="famCount"></span></div>
       <p class="alert-all">안부가 없을 때 알림 받는 사람: <b>가족 전원</b></p>
+      <div class="store" id="store"></div>
       <div class="members" id="members"></div>
       <div id="sheet"></div>
       <button class="btn btn-sun" id="inviteBtn">+ 가족 초대하기</button>
@@ -221,8 +232,14 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 const DEADLINE_KST = 11; // 한국 시간 오전 11시까지 안부 없으면 알림
 const MAX_FAMILY = 5; // 부모님 외 가족 자리
 const S = { checked:null, late:false, msgs:[], members:[], sheet:null };
-const seed = () => [{from:'sib', to:'parent', len:18, when:'어제 저녁', ex:true},
-                    {from:'mom', to:'all', len:24, when:'어제 오전', ex:true}];
+const MAX_REC = 180;        // 음성 1개당 최대 3분
+const KEEP_DAYS = 90;       // 90일 뒤 자동 삭제
+const QUOTA_MB = 1024;      // 무료 저장 공간 1GB
+const KB_PER_SEC = 3;       // 음성 압축 기준 1분 약 180KB
+const BASE_MB = 38.4;       // 예시: 지금까지 쌓인 음성 용량
+const mmss = s => Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const seed = () => [{from:'sib', to:'parent', len:74, when:'어제 저녁', age:1, ex:true},
+                    {from:'mom', to:'all', len:142, when:'어제 오전', age:1, ex:true}];
 const seedMembers = () => [
   {id:'mom', name:'어머니', role:'parent', since:'10월 28일'},
   {id:'me',  name:'석우',   role:'admin',  since:'10월 28일'},
@@ -283,13 +300,24 @@ function render(){
       const bars = Array.from({length:20},(_,i)=>'<i style="height:'+(5+Math.abs(Math.sin(i*1.7+m.len))*15).toFixed(0)+'px"></i>').join('');
       const from = esc(m.from==='me' ? nameOf('me')+(v==='parent'?' (토론토)':'') : nameOf(m.from));
       return '<div class="msg"><button class="play" aria-label="'+from+' 음성 재생">'+PLAY+'</button><div><strong>'+from+(m.ex?'<span class="ex">예시</span>':'')+
-        '</strong><em class="num">'+m.when+' · 0:'+String(m.len).padStart(2,'0')+'</em><div class="bars">'+bars+'</div></div></div>'; }).join('')
+        '</strong><em class="num">'+m.when+' · '+mmss(m.len)+'<span class="keep">· '+(KEEP_DAYS-(m.age||0))+'일 뒤 삭제</span></em><div class="bars">'+bars+'</div></div></div>'; }).join('')
       : '<p class="sub">아직 받은 메시지가 없어요</p>';
   });
   renderFamily();
 }
 
+function renderStore(){
+  const used = BASE_MB + S.msgs.reduce((a,m)=>a+m.len*KB_PER_SEC/1024,0);
+  const pct = used/QUOTA_MB*100;
+  document.getElementById('store').innerHTML =
+    '<div class="store-top"><span>저장 공간<span class="ex">예시</span></span><b>'+pct.toFixed(1)+'% 사용</b></div>'+
+    '<div class="meter '+(pct>=85?'high':pct>=60?'mid':'')+'" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct.toFixed(0)+'" aria-label="저장 공간 사용량"><i style="width:'+Math.max(2,Math.min(100,pct))+'%"></i></div>'+
+    '<p class="num">'+used.toFixed(1)+'MB / 1GB · 남은 공간으로 약 '+Math.floor((QUOTA_MB-used)*1024/KB_PER_SEC/60).toLocaleString()+'분 더 녹음할 수 있어요</p>'+
+    '<p>음성은 '+KEEP_DAYS+'일이 지나면 자동으로 지워져요. 새 음성은 푸시 알림으로 알려 드려요.</p>';
+}
+
 function renderFamily(){
+  renderStore();
   const fam = S.members.filter(m=>m.role!=='parent').length;
   document.getElementById('famCount').textContent = '가족 '+fam+' / '+MAX_FAMILY+'명';
   document.getElementById('members').innerHTML = S.members.map(m =>
@@ -365,9 +393,9 @@ function wireMic(btn, from){
   let t0=null, iv=null; const label = btn.querySelector('span'); const orig = label.textContent;
   btn.addEventListener('click',()=>{
     if (!t0){ t0=Date.now(); btn.classList.add('rec');
-      iv=setInterval(()=>{ const s=Math.min(30,Math.round((Date.now()-t0)/1000)); label.textContent='녹음 중 0:'+String(s).padStart(2,'0')+' · 누르면 보내요'; if(s>=30) btn.click(); },250);
-      label.textContent='녹음 중 0:00 · 누르면 보내요'; }
-    else { clearInterval(iv); const len=Math.max(1,Math.min(30,Math.round((Date.now()-t0)/1000))); t0=null;
+      iv=setInterval(()=>{ const s=Math.min(MAX_REC,Math.round((Date.now()-t0)/1000)); label.textContent='녹음 중 '+mmss(s)+' / 3:00 · 누르면 보내요'; if(s>=MAX_REC){ btn.click(); toast('3분이 되어 자동으로 보냈어요'); } },250);
+      label.textContent='녹음 중 0:00 / 3:00 · 누르면 보내요'; }
+    else { clearInterval(iv); const len=Math.max(1,Math.min(MAX_REC,Math.round((Date.now()-t0)/1000))); t0=null;
       btn.classList.remove('rec'); label.textContent=orig;
       S.msgs.unshift({from, to: from==='mom'?'all':'parent', len, when:'방금'}); render();
       toast('목소리를 보냈어요 (시안이라 실제 녹음은 아직)'); }
