@@ -1,98 +1,130 @@
 <title>별일없지?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700;800&display=swap">
 <style>
-/* Layout: one phone-width column; a role switcher on top, each role gets its own screen. Parent screen = two giant targets only. */
+/* Layout: one phone-width column under a sky band with clouds; parent screen = smiling sun button + voice button. Rounded, chunky, big text. */
 :root{
-  --bg:#EEF3F0; --surface:#FFFFFF; --ink:#14231D; --muted:#56675F; --line:#D5E0DA;
-  --accent:#1D7F57; --accent-ink:#FFFFFF; --accent-soft:#DCEFE5;
-  --warn:#B86A10; --warn-soft:#FBEBD3; --voice:#2F5DA8; --voice-soft:#E1E9F7;
-  --display:"Do Hyeon","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  --sky:#DDF0FF; --bg:#F4FAFF; --surface:#FFFFFF; --ink:#2B2A3D; --muted:#6B6A82; --line:#E3E9F4;
+  --sun:#FFC83D; --sun-deep:#F2A007; --sun-ink:#4A3000; --cheek:#FF9DB0;
+  --ok:#2FB774; --ok-soft:#DBF6E7; --warn:#F07D1A; --warn-soft:#FFEBD8;
+  --voice:#FF6F91; --voice-soft:#FFE6EC; --voice-ink:#FFFFFF; --cloud:#FFFFFF;
+  --display:"Jua","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
   --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E1613; --surface:#17221E; --ink:#E6EFEA; --muted:#9AADA4; --line:#28372F;
-  --accent:#43BE85; --accent-ink:#06130D; --accent-soft:#16352A;
-  --warn:#F0A64A; --warn-soft:#3A2A14; --voice:#7FA6EA; --voice-soft:#1B2840; color-scheme:dark}}
+  --sky:#1E2547; --bg:#151a33; --surface:#212848; --ink:#F2F3FF; --muted:#A9AECB; --line:#323A60;
+  --sun:#FFC83D; --sun-deep:#D98E00; --sun-ink:#3A2600; --cheek:#FF8FA6;
+  --ok:#5BD99A; --ok-soft:#1D3F3A; --warn:#FFA052; --warn-soft:#45301F;
+  --voice:#FF7E9C; --voice-soft:#43284A; --voice-ink:#2A0F18; --cloud:#2C3460; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E1613; --surface:#17221E; --ink:#E6EFEA; --muted:#9AADA4; --line:#28372F;
-  --accent:#43BE85; --accent-ink:#06130D; --accent-soft:#16352A;
-  --warn:#F0A64A; --warn-soft:#3A2A14; --voice:#7FA6EA; --voice-soft:#1B2840; color-scheme:dark}
+  --sky:#1E2547; --bg:#151a33; --surface:#212848; --ink:#F2F3FF; --muted:#A9AECB; --line:#323A60;
+  --sun:#FFC83D; --sun-deep:#D98E00; --sun-ink:#3A2600; --cheek:#FF8FA6;
+  --ok:#5BD99A; --ok-soft:#1D3F3A; --warn:#FFA052; --warn-soft:#45301F;
+  --voice:#FF7E9C; --voice-soft:#43284A; --voice-ink:#2A0F18; --cloud:#2C3460; color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
-.wrap{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.brand h1{font-family:var(--display);font-weight:400;font-size:32px;margin:0;letter-spacing:.5px}
-.tag{font-size:12px;color:var(--muted);letter-spacing:.06em}
-.roles{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
-.roles button{font:inherit;font-size:14px;font-weight:500;border:0;background:none;color:var(--muted);padding:10px 4px;border-radius:10px;cursor:pointer}
-.roles button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
-button:focus-visible{outline:3px solid var(--voice);outline-offset:2px}
-.screen{display:flex;flex-direction:column;gap:16px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px}
-.greet{font-family:var(--display);font-size:28px;line-height:1.25;margin:0;text-wrap:balance}
-.sub{color:var(--muted);margin:0;font-size:15px}
+[hidden]{display:none!important}
+body{background:linear-gradient(var(--sky) 0, var(--bg) 300px);background-color:var(--bg);color:var(--ink);font-family:var(--body);
+  font-size:17px;font-weight:500;line-height:1.6;word-break:keep-all;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 48px}
+.wrap{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:18px;position:relative}
+.clouds{position:absolute;inset:0 0 auto;height:90px;pointer-events:none;overflow:hidden}
+.clouds svg{position:absolute;fill:var(--cloud)}
+.brand{position:relative;display:flex;align-items:center;gap:10px;padding-top:6px}
+.logo{width:44px;height:44px;flex:none}
+.brand h1{font-family:var(--display);font-weight:400;font-size:34px;margin:0;line-height:1}
+.tag{margin-left:auto;font-size:12px;color:var(--muted);background:var(--surface);border-radius:99px;padding:4px 10px;white-space:nowrap}
+
+.roles{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:99px;padding:5px;gap:4px;
+  box-shadow:0 4px 0 var(--line)}
+.roles button{font:inherit;font-family:var(--display);font-size:17px;border:0;background:none;color:var(--muted);padding:10px 4px;border-radius:99px;cursor:pointer}
+.roles button[aria-selected="true"]{background:var(--sun);color:var(--sun-ink)}
+button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
+.screen{display:flex;flex-direction:column;gap:18px}
+.panel{background:var(--surface);border-radius:28px;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 6px 0 var(--line)}
+.greet{font-family:var(--display);font-size:30px;line-height:1.3;margin:0;text-align:center;text-wrap:balance}
+.sub{color:var(--muted);margin:0;font-size:16px}
+.date{text-align:center;margin-top:-8px}
 .num{font-variant-numeric:tabular-nums}
 
-/* Parent: giant check-in button */
-.big{align-self:center;width:min(76vw,260px);aspect-ratio:1;max-width:100%;border-radius:50%;border:0;cursor:pointer;
-  background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-size:40px;line-height:1.15;
-  box-shadow:0 10px 0 color-mix(in srgb,var(--accent) 60%,#000);transition:transform .08s, box-shadow .08s;margin-block:8px 18px}
-.big:active{transform:translateY(8px);box-shadow:0 2px 0 color-mix(in srgb,var(--accent) 60%,#000)}
-.big small{display:block;font-family:var(--body);font-size:16px;font-weight:500;opacity:.85;margin-top:6px}
-.big.done{background:var(--accent-soft);color:var(--accent);box-shadow:none;transform:none;cursor:default}
-.mic{width:100%;border:2px solid var(--voice);background:var(--voice-soft);color:var(--voice);font:inherit;font-size:22px;font-weight:700;
-  border-radius:18px;padding:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px}
-.mic.rec{background:var(--voice);color:var(--surface)}
-.dot{width:14px;height:14px;border-radius:50%;background:currentColor}
-.mic.rec .dot{animation:blink 1s infinite}
-@keyframes blink{50%{opacity:.2}}
-@media (prefers-reduced-motion:reduce){.mic.rec .dot{animation:none}.big{transition:none}}
+/* Parent: smiling sun button */
+.big{position:relative;align-self:center;width:min(72vw,250px);aspect-ratio:1;max-width:100%;border-radius:50%;border:0;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%, #FFE07A, var(--sun) 60%);color:var(--sun-ink);
+  box-shadow:0 10px 0 var(--sun-deep), 0 0 0 14px color-mix(in srgb,var(--sun) 25%,transparent);
+  transition:transform .1s, box-shadow .1s;margin-block:16px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.big:active{transform:translateY(8px);box-shadow:0 2px 0 var(--sun-deep), 0 0 0 14px color-mix(in srgb,var(--sun) 25%,transparent)}
+.big .face{width:42%;height:auto}
+.big b{font-family:var(--display);font-weight:400;font-size:36px;line-height:1.1}
+.big small{font-size:15px;font-weight:700;opacity:.75}
+.big.done{background:radial-gradient(circle at 35% 30%, #8FE8B9, var(--ok) 65%);color:#fff;box-shadow:0 10px 0 color-mix(in srgb,var(--ok) 65%,#000), 0 0 0 14px var(--ok-soft);cursor:default;transform:none}
+.big.pop{animation:pop .45s ease}
+@keyframes pop{40%{transform:scale(1.08)}}
+.mic{width:100%;border:0;background:var(--voice);color:var(--voice-ink);font:inherit;font-family:var(--display);font-size:24px;
+  border-radius:99px;padding:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 6px 0 color-mix(in srgb,var(--voice) 65%,#000)}
+.mic:active{transform:translateY(4px);box-shadow:0 2px 0 color-mix(in srgb,var(--voice) 65%,#000)}
+.mic svg{width:26px;height:26px;flex:none}
+.mic.rec{background:var(--voice-soft);color:var(--voice);box-shadow:0 6px 0 var(--line)}
+.mic.rec svg{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.mic.rec svg,.big.pop{animation:none}.big,.mic{transition:none}}
 
 /* Status (me / family) */
 .status{display:flex;gap:14px;align-items:center}
-.pill{flex:none;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-family:var(--display);font-size:26px}
-.ok .pill{background:var(--accent-soft);color:var(--accent)}
-.wait .pill{background:var(--line);color:var(--muted)}
+.pill{flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center}
+.pill svg{width:44px;height:44px}
+.ok .pill{background:var(--ok-soft);color:var(--ok)}
+.wait .pill{background:color-mix(in srgb,var(--sun) 30%,var(--surface));color:var(--sun-deep)}
 .late .pill{background:var(--warn-soft);color:var(--warn)}
-.status h2{margin:0;font-size:20px;font-weight:700}
-.status p{margin:0;color:var(--muted);font-size:14px}
-.late h2{color:var(--warn)}
+.status h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;line-height:1.25}
+.status p{margin:0;color:var(--muted);font-size:15px}
+.ok h2{color:var(--ok)} .late h2{color:var(--warn)}
 .clocks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.clock{border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.clock span{display:block;font-size:12px;color:var(--muted);letter-spacing:.04em}
-.clock b{font-size:20px;font-variant-numeric:tabular-nums}
-.rule{font-size:14px;color:var(--muted);margin:0;border-top:1px dashed var(--line);padding-top:12px}
+.clock{background:var(--bg);border-radius:18px;padding:12px 14px}
+.clock span{display:block;font-size:13px;color:var(--muted)}
+.clock b{font-family:var(--display);font-weight:400;font-size:24px;font-variant-numeric:tabular-nums}
+.rule{font-size:15px;color:var(--muted);margin:0;background:color-mix(in srgb,var(--sun) 16%,var(--surface));border-radius:16px;padding:12px 14px}
 .rule b{color:var(--ink)}
 
 /* Messages */
-.msgs h3{margin:0;font-size:15px;color:var(--muted);font-weight:500;letter-spacing:.04em}
-.msg{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
-.msg:first-of-type{border-top:0}
-.play{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--voice);color:var(--surface);cursor:pointer;font-size:18px}
+.msgs h3{margin:0;font-family:var(--display);font-weight:400;font-size:21px}
+.list{display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:20px;background:var(--voice-soft)}
+.play{flex:none;width:52px;height:52px;border-radius:50%;border:0;background:var(--voice);color:var(--voice-ink);cursor:pointer;display:grid;place-items:center}
+.play svg{width:20px;height:20px;margin-left:3px}
 .msg div{min-width:0;flex:1}
-.msg strong{display:block;font-size:16px}
-.msg em{font-style:normal;font-size:13px;color:var(--muted)}
-.bars{display:flex;gap:2px;align-items:center;height:18px;margin-top:4px}
-.bars i{width:3px;border-radius:2px;background:var(--voice);opacity:.55}
-.ex{font-size:11px;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.msg strong{display:block;font-size:17px;font-weight:800}
+.msg em{font-style:normal;font-size:14px;color:var(--muted)}
+.bars{display:flex;gap:3px;align-items:center;height:20px;margin-top:2px}
+.bars i{width:4px;border-radius:2px;background:var(--voice);opacity:.6}
+.ex{font-size:11px;font-weight:700;background:var(--surface);color:var(--muted);border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:2px}
 .demo{display:flex;flex-wrap:wrap;gap:8px}
-.demo button{font:inherit;font-size:13px;border:1px dashed var(--line);background:none;color:var(--muted);border-radius:10px;padding:8px 10px;cursor:pointer}
+.demo button{font:inherit;font-size:14px;border:2px dashed var(--line);background:none;color:var(--muted);border-radius:99px;padding:8px 14px;cursor:pointer}
 .note{font-size:13px;color:var(--muted);margin:0;text-align:center}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
-  padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:12px 18px;border-radius:99px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1}
 </style>
 
 <div class="wrap">
-  <div class="brand"><h1>별일없지?</h1><span class="tag">시안 v0.1 · 화면 미리보기</span></div>
+  <div class="clouds" aria-hidden="true">
+    <svg viewBox="0 0 120 50" width="90" style="right:96px;top:-10px;opacity:.7"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
+    <svg viewBox="0 0 120 50" width="74" style="right:-8px;top:4px"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
+  </div>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
+      <g stroke="var(--sun-deep)" stroke-width="7" stroke-linecap="round">
+        <path d="M50 4v10M50 86v10M4 50h10M86 50h10M17 17l7 7M76 76l7 7M17 83l7-7M76 24l7-7"/></g>
+      <circle cx="50" cy="50" r="30" fill="var(--sun)"/>
+      <circle cx="40" cy="47" r="4" fill="var(--sun-ink)"/><circle cx="60" cy="47" r="4" fill="var(--sun-ink)"/>
+      <path d="M41 58q9 8 18 0" stroke="var(--sun-ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </svg>
+    <h1>별일없지?</h1><span class="tag">시안 v0.2</span>
+  </div>
 
   <div class="roles" role="tablist">
     <button id="tab-parent" role="tab" aria-selected="true" data-role="parent">부모님</button>
-    <button id="tab-me" role="tab" aria-selected="false" data-role="me">나 (토론토)</button>
+    <button id="tab-me" role="tab" aria-selected="false" data-role="me">나</button>
     <button id="tab-family" role="tab" aria-selected="false" data-role="family">한국 가족</button>
   </div>
 
@@ -100,9 +132,9 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:2px}
   <section class="screen" id="parent">
     <div class="panel">
       <p class="greet" id="pGreet">어머니, 좋은 아침이에요</p>
-      <p class="sub num" id="pDate"></p>
-      <button class="big" id="checkBtn">별일<br>없어요<small>한 번 눌러 주세요</small></button>
-      <button class="mic" id="pMic"><span class="dot"></span><span>목소리 남기기</span></button>
+      <p class="sub num date" id="pDate"></p>
+      <button class="big" id="checkBtn"></button>
+      <button class="mic" id="pMic"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>목소리 남기기</span></button>
     </div>
     <div class="panel msgs"><h3>가족이 보낸 목소리</h3><div class="list" data-viewer="parent"></div></div>
   </section>
@@ -118,7 +150,7 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:2px}
       <p class="rule" data-rule></p>
     </div>
     <div class="panel msgs"><h3>음성 메시지</h3><div class="list" data-viewer="me"></div></div>
-    <button class="mic" data-mic="me"><span class="dot"></span><span>부모님께 목소리 보내기</span></button>
+    <button class="mic" data-mic="me"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>부모님께 목소리 보내기</span></button>
   </section>
 
   <!-- 한국 가족 -->
@@ -132,17 +164,17 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:2px}
       <p class="rule" data-rule></p>
     </div>
     <div class="panel msgs"><h3>음성 메시지</h3><div class="list" data-viewer="family"></div></div>
-    <button class="mic" data-mic="family"><span class="dot"></span><span>부모님께 목소리 보내기</span></button>
+    <button class="mic" data-mic="family"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>부모님께 목소리 보내기</span></button>
   </section>
 
   <div class="panel">
-    <p class="sub" style="font-size:13px">시연용 버튼 (실제 앱에는 없음)</p>
+    <p class="sub" style="font-size:14px">시연용 버튼 (실제 앱에는 없음)</p>
     <div class="demo">
       <button id="demoLate">마감 지난 상황 보기</button>
       <button id="demoReset">처음 상태로</button>
     </div>
   </div>
-  <p class="note">이 시안은 화면과 흐름 확인용입니다. 실제 녹음·알림은 서버 연결 단계에서 붙입니다.</p>
+  <p class="note">화면과 흐름 확인용 시안입니다. 실제 녹음과 알림은 서버 연결 단계에서 붙입니다.</p>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -152,6 +184,20 @@ const S = { checked:null, late:false, msgs:[] };
 const seed = () => [{from:'동생', to:'parent', len:18, when:'어제 저녁', ex:true},
                     {from:'어머니', to:'all', len:24, when:'어제 오전', ex:true}];
 S.msgs = seed();
+
+// 표정 얼굴: happy(웃는 눈), wait(동그란 눈), worry(걱정)
+function face(mood){
+  const eyes = mood==='happy'
+    ? '<path d="M28 44q8-9 16 0M56 44q8-9 16 0" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    : '<circle cx="36" cy="42" r="6" fill="currentColor"/><circle cx="64" cy="42" r="6" fill="currentColor"/>';
+  const mouth = mood==='worry'
+    ? '<path d="M38 70q12-8 24 0" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    : mood==='happy' ? '<path d="M34 60q16 18 32 0z" fill="currentColor"/>'
+    : '<path d="M38 62q12 10 24 0" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>';
+  return '<svg class="face" viewBox="0 0 100 90" aria-hidden="true">'+eyes+mouth+
+    '<ellipse cx="22" cy="58" rx="8" ry="5" fill="var(--cheek)" opacity=".8"/><ellipse cx="78" cy="58" rx="8" ry="5" fill="var(--cheek)" opacity=".8"/></svg>';
+}
+const PLAY = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 4 2.5z"/></svg>';
 
 const fmt = (tz, opt) => new Intl.DateTimeFormat('ko-KR', {timeZone:tz, ...opt});
 const kstParts = d => Object.fromEntries(fmt('Asia/Seoul',{year:'numeric',month:'numeric',day:'numeric',hour:'numeric',hourCycle:'h23'}).formatToParts(d).map(p=>[p.type,p.value]));
@@ -165,29 +211,29 @@ function render(){
   const h = +kstParts(now).hour;
   document.getElementById('pGreet').textContent = h<11 ? '어머니, 좋은 아침이에요' : h<17 ? '어머니, 점심 잘 드셨어요?' : '어머니, 오늘 하루 어떠셨어요?';
   const btn = document.getElementById('checkBtn');
-  if (S.checked){ btn.classList.add('done'); btn.innerHTML = '전했어요<small>' + timeKo('Asia/Seoul',S.checked) + ' 안부 완료</small>'; }
-  else { btn.classList.remove('done'); btn.innerHTML = '별일<br>없어요<small>한 번 눌러 주세요</small>'; }
+  if (S.checked){ btn.classList.add('done'); btn.innerHTML = face('happy') + '<b>전했어요!</b><small>' + timeKo('Asia/Seoul',S.checked) + ' 안부 완료</small>'; }
+  else { btn.classList.remove('done'); btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>한 번 눌러 주세요</small>'; }
 
   const dl = deadlineDate(now);
   document.querySelectorAll('[data-kst]').forEach(e=>e.textContent = timeKo('Asia/Seoul',now));
   document.querySelectorAll('[data-tor]').forEach(e=>e.textContent = timeKo('America/Toronto',now));
   document.querySelectorAll('[data-rule]').forEach(e=>e.innerHTML =
-    '안부 마감: <b>한국 오전 '+DEADLINE_KST+'시</b> = 토론토 <b>' + dayKo('America/Toronto',dl) + ' ' + timeKo('America/Toronto',dl) + '</b>. 이때까지 버튼이 안 눌리면 알림이 갑니다.');
-  let cls, icon, title, desc;
-  if (S.checked){ cls='ok'; icon='✓'; title='오늘 안부 도착'; desc='한국 ' + timeKo('Asia/Seoul',S.checked) + '에 어머니가 누르셨어요'; }
-  else if (S.late){ cls='late'; icon='!'; title='아직 안부가 없어요'; desc='마감이 지났어요. 전화 한 통 드려 보세요'; }
-  else { cls='wait'; icon='…'; title='오늘 안부 기다리는 중'; desc='한국 오전 '+DEADLINE_KST+'시까지 기다려요'; }
+    '안부 마감은 <b>한국 오전 '+DEADLINE_KST+'시</b>, 토론토로는 <b>' + dayKo('America/Toronto',dl) + ' ' + timeKo('America/Toronto',dl) + '</b>예요. 그때까지 버튼이 안 눌리면 알림이 가요.');
+  let cls, mood, title, desc;
+  if (S.checked){ cls='ok'; mood='happy'; title='오늘도 별일 없어요!'; desc='한국 ' + timeKo('Asia/Seoul',S.checked) + '에 어머니가 누르셨어요'; }
+  else if (S.late){ cls='late'; mood='worry'; title='아직 안부가 없어요'; desc='마감이 지났어요. 전화 한 통 드려 보세요'; }
+  else { cls='wait'; mood='wait'; title='오늘 안부 기다리는 중'; desc='한국 오전 '+DEADLINE_KST+'시까지 기다려요'; }
   document.querySelectorAll('[data-status]').forEach(e=>{ e.className='status '+cls;
-    e.innerHTML = '<div class="pill">'+icon+'</div><div><h2>'+title+'</h2><p>'+desc+'</p></div>'; });
+    e.innerHTML = '<div class="pill">'+face(mood)+'</div><div><h2>'+title+'</h2><p>'+desc+'</p></div>'; });
 
   document.querySelectorAll('.list').forEach(list=>{
     const v = list.dataset.viewer;
     const me = v==='parent'?'어머니':v==='me'?'나':'동생';
-    const items = S.msgs.filter(m => m.from!==me && (m.to==='all' || m.to==='parent' && v==='parent' || v!=='parent'));
+    const items = S.msgs.filter(m => m.from!==me && (m.to==='all' || v==='parent' || v!=='parent'));
     list.innerHTML = items.length ? items.map(m => {
-      const bars = Array.from({length:22},(_,i)=>'<i style="height:'+(4+Math.abs(Math.sin(i*1.7+m.len))*14).toFixed(0)+'px"></i>').join('');
+      const bars = Array.from({length:20},(_,i)=>'<i style="height:'+(5+Math.abs(Math.sin(i*1.7+m.len))*15).toFixed(0)+'px"></i>').join('');
       const from = (v==='parent' && m.from==='나') ? '석우 (토론토)' : m.from;
-      return '<div class="msg"><button class="play" aria-label="'+from+' 음성 재생">▶</button><div><strong>'+from+(m.ex?'<span class="ex">예시</span>':'')+
+      return '<div class="msg"><button class="play" aria-label="'+from+' 음성 재생">'+PLAY+'</button><div><strong>'+from+(m.ex?'<span class="ex">예시</span>':'')+
         '</strong><em class="num">'+m.when+' · 0:'+String(m.len).padStart(2,'0')+'</em><div class="bars">'+bars+'</div></div></div>'; }).join('')
       : '<p class="sub">아직 받은 메시지가 없어요</p>';
   });
@@ -199,21 +245,22 @@ document.querySelectorAll('.roles button').forEach(b=>b.addEventListener('click'
   document.querySelectorAll('.roles button').forEach(x=>x.setAttribute('aria-selected', x===b));
   ['parent','me','family'].forEach(id=>document.getElementById(id).hidden = id!==b.dataset.role);
 }));
-document.getElementById('checkBtn').addEventListener('click',()=>{
+document.getElementById('checkBtn').addEventListener('click',e=>{
   if (S.checked) return; S.checked = new Date(); S.late=false; render();
+  e.currentTarget.classList.add('pop'); setTimeout(()=>e.currentTarget?.classList.remove('pop'),500);
   toast('안부가 토론토와 가족에게 전해졌어요');
 });
 
 function wireMic(btn, from){
-  let t0=null, iv=null; const label = btn.querySelector('span:last-child'); const orig = label.textContent;
+  let t0=null, iv=null; const label = btn.querySelector('span'); const orig = label.textContent;
   btn.addEventListener('click',()=>{
     if (!t0){ t0=Date.now(); btn.classList.add('rec');
-      iv=setInterval(()=>{ const s=Math.min(30,Math.round((Date.now()-t0)/1000)); label.textContent='녹음 중 0:'+String(s).padStart(2,'0')+' · 눌러서 보내기'; if(s>=30) btn.click(); },250);
-      label.textContent='녹음 중 0:00 · 눌러서 보내기'; }
+      iv=setInterval(()=>{ const s=Math.min(30,Math.round((Date.now()-t0)/1000)); label.textContent='녹음 중 0:'+String(s).padStart(2,'0')+' · 누르면 보내요'; if(s>=30) btn.click(); },250);
+      label.textContent='녹음 중 0:00 · 누르면 보내요'; }
     else { clearInterval(iv); const len=Math.max(1,Math.min(30,Math.round((Date.now()-t0)/1000))); t0=null;
       btn.classList.remove('rec'); label.textContent=orig;
       S.msgs.unshift({from, to: from==='어머니'?'all':'parent', len, when:'방금'}); render();
-      toast('목소리를 보냈어요 (시안: 실제 녹음은 다음 단계)'); }
+      toast('목소리를 보냈어요 (시안이라 실제 녹음은 아직)'); }
   });
 }
 wireMic(document.getElementById('pMic'),'어머니');
