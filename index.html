@@ -280,7 +280,7 @@ function render(){
   const pn = parentName();
   document.getElementById('pGreet').textContent = h<11 ? pn+', 좋은 아침이에요' : h<17 ? pn+', 점심 잘 드셨어요?' : pn+', 오늘 하루 어떠셨어요?';
   const btn = document.getElementById('checkBtn');
-  if (S.checked){ btn.classList.add('done'); btn.innerHTML = face('happy') + '<b>전했어요!</b><small>' + timeKo('Asia/Seoul',S.checked) + ' 안부 완료</small>'; }
+  if (S.checked){ btn.classList.add('done'); btn.innerHTML = face('happy') + '<b>전달했어요!</b><small>' + timeKo('Asia/Seoul',S.checked) + ' 안부 완료</small>'; }
   else { btn.classList.remove('done'); btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>한 번 눌러 주세요</small>'; }
 
   const dl = deadlineDate(now);
