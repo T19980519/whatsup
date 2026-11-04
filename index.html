@@ -195,7 +195,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
   <!-- 부모님 화면 -->
   <section class="screen" id="parent">
     <div class="panel">
-      <p class="greet" id="pGreet">어머니, 좋은 아침이에요</p>
+      <p class="greet" id="pGreet">오늘 별일 없죠?</p>
       <p class="sub num date" id="pDate"></p>
       <button class="big" id="checkBtn"></button>
       <button class="mic" id="pMic" data-limit><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>목소리 남기기</span></button>
@@ -298,7 +298,7 @@ function render(){
   document.getElementById('pDate').textContent = '한국 ' + dayKo('Asia/Seoul',now) + ' · ' + timeKo('Asia/Seoul',now);
   const h = +kstParts(now).hour;
   const pn = parentName();
-  document.getElementById('pGreet').textContent = h<11 ? pn+', 좋은 아침이에요' : h<17 ? pn+', 점심 잘 드셨어요?' : pn+', 오늘 하루 어떠셨어요?';
+  document.getElementById('pGreet').textContent = '오늘 별일 없죠?';
   const btn = document.getElementById('checkBtn');
   if (S.checked){ btn.classList.add('done'); btn.innerHTML = face('happy') + '<b>전달했어요!</b><small>' + timeKo('Asia/Seoul',S.checked) + ' 안부 완료</small>'; }
   else { btn.classList.remove('done'); btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>한 번 눌러 주세요</small>'; }
