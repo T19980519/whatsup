@@ -1,7 +1,7 @@
 <title>별일없지?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800;900&display=swap">
 <style>
 /* Layout: one phone-width column under a sky band with clouds; parent screen = smiling sun button + voice button. Rounded, chunky, big text. */
 :root{
@@ -9,7 +9,7 @@
   --sun:#FFC83D; --sun-deep:#F2A007; --sun-ink:#4A3000; --cheek:#FF9DB0;
   --ok:#2FB774; --ok-soft:#DBF6E7; --warn:#F07D1A; --warn-soft:#FFEBD8;
   --voice:#FF6F91; --voice-soft:#FFE6EC; --voice-ink:#FFFFFF; --cloud:#FFFFFF;
-  --display:"Jua","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  --display:"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
   --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -33,7 +33,7 @@ body{background:linear-gradient(var(--sky) 0, var(--bg) 300px);background-color:
 .clouds svg{position:absolute;fill:var(--cloud)}
 .brand{position:relative;display:flex;align-items:center;gap:10px;padding-top:6px}
 .logo{width:44px;height:44px;flex:none}
-.brand h1{font-family:var(--display);font-weight:400;font-size:34px;margin:0;line-height:1}
+.brand h1{font-family:var(--display);font-weight:800;font-size:34px;margin:0;line-height:1}
 .tag{margin-left:auto;font-size:12px;color:var(--muted);background:var(--surface);border-radius:99px;padding:4px 10px;white-space:nowrap}
 
 .roles{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:99px;padding:5px;gap:4px;
@@ -55,7 +55,7 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
   transition:transform .1s, box-shadow .1s;margin-block:16px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .big:active{transform:translateY(8px);box-shadow:0 2px 0 var(--sun-deep), 0 0 0 14px color-mix(in srgb,var(--sun) 25%,transparent)}
 .big .face{width:42%;height:auto}
-.big b{font-family:var(--display);font-weight:400;font-size:36px;line-height:1.1}
+.big b{font-family:var(--display);font-weight:800;font-size:36px;line-height:1.1}
 .big small{font-size:15px;font-weight:700;opacity:.75}
 .big.done{background:radial-gradient(circle at 35% 30%, #8FE8B9, var(--ok) 65%);color:#fff;box-shadow:0 10px 0 color-mix(in srgb,var(--ok) 65%,#000), 0 0 0 14px var(--ok-soft);cursor:default;transform:none}
 .big.pop{animation:pop .45s ease}
@@ -76,18 +76,18 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
 .ok .pill{background:var(--ok-soft);color:var(--ok)}
 .wait .pill{background:color-mix(in srgb,var(--sun) 30%,var(--surface));color:var(--sun-deep)}
 .late .pill{background:var(--warn-soft);color:var(--warn)}
-.status h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;line-height:1.25}
+.status h2{margin:0;font-family:var(--display);font-weight:800;font-size:24px;line-height:1.25}
 .status p{margin:0;color:var(--muted);font-size:15px}
 .ok h2{color:var(--ok)} .late h2{color:var(--warn)}
 .clocks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .clock{background:var(--bg);border-radius:18px;padding:12px 14px}
 .clock span{display:block;font-size:13px;color:var(--muted)}
-.clock b{font-family:var(--display);font-weight:400;font-size:24px;font-variant-numeric:tabular-nums}
+.clock b{font-family:var(--display);font-weight:800;font-size:24px;font-variant-numeric:tabular-nums}
 .rule{font-size:15px;color:var(--muted);margin:0;background:color-mix(in srgb,var(--sun) 16%,var(--surface));border-radius:16px;padding:12px 14px}
 .rule b{color:var(--ink)}
 
 /* Messages */
-.msgs h3{margin:0;font-family:var(--display);font-weight:400;font-size:21px}
+.msgs h3{margin:0;font-family:var(--display);font-weight:800;font-size:21px}
 .list{display:flex;flex-direction:column;gap:10px}
 .msg{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:20px;background:var(--voice-soft)}
 .play{flex:none;width:52px;height:52px;border-radius:50%;border:0;background:var(--voice);color:var(--voice-ink);cursor:pointer;display:grid;place-items:center}
@@ -100,7 +100,7 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
 .ex{font-size:11px;font-weight:700;background:var(--surface);color:var(--muted);border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:2px}
 /* Family management (방장 only) */
 .fam-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.fam-head h3{margin:0;font-family:var(--display);font-weight:400;font-size:21px}
+.fam-head h3{margin:0;font-family:var(--display);font-weight:800;font-size:21px}
 .count{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
 .members{display:flex;flex-direction:column;gap:8px}
 .member{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;border:0;background:var(--bg);border-radius:18px;padding:10px 12px;cursor:pointer}
@@ -114,7 +114,7 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
 .alert-all b{color:var(--ok)}
 .store{background:var(--bg);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .store-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:15px}
-.store-top b{font-family:var(--display);font-weight:400;font-size:20px;font-variant-numeric:tabular-nums}
+.store-top b{font-family:var(--display);font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
 .meter{height:14px;border-radius:99px;background:var(--line);overflow:hidden}
 .meter i{display:block;height:100%;border-radius:99px;background:var(--ok);transition:width .3s}
 .meter.mid i{background:var(--sun-deep)} .meter.high i{background:var(--warn)}
@@ -128,7 +128,7 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
 .btn-danger{background:var(--warn-soft);color:var(--warn)}
 .btn-danger-solid{background:var(--warn);color:#fff}
 .sheet{border:2px solid var(--sun);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--sun) 8%,var(--surface))}
-.sheet h4{margin:0;font-family:var(--display);font-weight:400;font-size:20px}
+.sheet h4{margin:0;font-family:var(--display);font-weight:800;font-size:20px}
 .code{font-family:var(--display);font-size:38px;letter-spacing:.18em;text-align:center;background:var(--surface);border-radius:16px;padding:8px;font-variant-numeric:tabular-nums}
 .link{font-size:14px;color:var(--muted);text-align:center;margin:0;word-break:break-all}
 .row{display:flex;gap:8px;flex-wrap:wrap} .row .btn{flex:1 1 120px}
@@ -145,6 +145,9 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
   padding:12px 18px;border-radius:99px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1}
+/* 고딕체 굵기: 제목·버튼은 굵게 */
+.roles button,.greet,.mic,.btn,.code,.ava,.demo button{font-weight:800;letter-spacing:-.01em}
+h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 </style>
 
 <div class="wrap">
@@ -160,7 +163,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
       <circle cx="40" cy="47" r="4" fill="var(--sun-ink)"/><circle cx="60" cy="47" r="4" fill="var(--sun-ink)"/>
       <path d="M41 58q9 8 18 0" stroke="var(--sun-ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
     </svg>
-    <h1>별일없지?</h1><span class="tag">시안 v0.4</span>
+    <h1>별일없지?</h1><span class="tag">시안 v0.5</span>
   </div>
 
   <div class="roles" role="tablist">
