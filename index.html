@@ -1,5 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>별일없지?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="부모님 안부 버튼과 가족 음성 메시지">
+<meta name="theme-color" content="#DDF0FF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="별일없지">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800;900&display=swap">
 <style>
@@ -24,6 +38,10 @@
   --voice:#FF7E9C; --voice-soft:#43284A; --voice-ink:#2A0F18; --cloud:#2C3460; color-scheme:dark}
 
 *{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+html,body{margin:0}
+html{background:var(--sky)}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 [hidden]{display:none!important}
 body{background:linear-gradient(var(--sky) 0, var(--bg) 300px);background-color:var(--bg);color:var(--ink);font-family:var(--body);
   font-size:17px;font-weight:500;line-height:1.6;word-break:keep-all;
@@ -149,6 +167,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 .roles button,.greet,.mic,.btn,.code,.ava,.demo button{font-weight:800;letter-spacing:-.01em}
 h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <div class="clouds" aria-hidden="true">
@@ -412,3 +432,5 @@ document.getElementById('demoLate').addEventListener('click',()=>{ S.checked=nul
 document.getElementById('demoReset').addEventListener('click',()=>{ S.checked=null; S.late=false; S.msgs=seed(); S.members=seedMembers(); S.sheet=null; render(); });
 render(); setInterval(render, 30000);
 </script>
+</body>
+</html>
