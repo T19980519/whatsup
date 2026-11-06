@@ -259,7 +259,8 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 const DEADLINE_HOUR = 11; // 부모님이 계신 곳 시간으로 오전 11시까지 안부 없으면 알림
 // 지역 → 도시(시간대). 시간대가 여러 개인 지역은 도시를 골라요
 const REGIONS = {
-  '대한민국': [['서울','Asia/Seoul']],
+  // 대한민국은 시간대가 하나지만 광역시·도별 가장 큰 도시를 고를 수 있어요
+  '대한민국': [['서울','Asia/Seoul'],['부산','Asia/Seoul'],['인천','Asia/Seoul'],['대구','Asia/Seoul'],['대전','Asia/Seoul'],['광주','Asia/Seoul'],['울산','Asia/Seoul'],['세종','Asia/Seoul'],['수원 (경기)','Asia/Seoul'],['원주 (강원)','Asia/Seoul'],['청주 (충북)','Asia/Seoul'],['천안 (충남)','Asia/Seoul'],['전주 (전북)','Asia/Seoul'],['순천 (전남)','Asia/Seoul'],['포항 (경북)','Asia/Seoul'],['창원 (경남)','Asia/Seoul'],['제주 (제주)','Asia/Seoul']],
   '캐나다':   [['토론토·몬트리올','America/Toronto'],['밴쿠버','America/Vancouver'],['캘거리·에드먼턴','America/Edmonton'],['위니펙','America/Winnipeg'],['핼리팩스','America/Halifax']],
   '미국':     [['뉴욕·애틀랜타','America/New_York'],['시카고·댈러스','America/Chicago'],['덴버','America/Denver'],['피닉스','America/Phoenix'],['LA·시애틀','America/Los_Angeles'],['앵커리지','America/Anchorage'],['하와이','Pacific/Honolulu']],
   '유럽':     [['런던·리스본','Europe/London'],['파리·베를린·로마','Europe/Paris'],['아테네·헬싱키','Europe/Athens'],['모스크바·이스탄불','Europe/Moscow']],
