@@ -18,3 +18,6 @@ Authentication → Allow anonymous sign-ins 켜기. 연결 정보는 `app.js` �
 ### 알림 함수 (Edge Function `push`)
 - 코드: `supabase/functions/push/index.ts` — 대시보드 Edge Functions에서 이름 `push`로 올리고 JWT 확인(Verify JWT)은 끄기
 - Secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (공개 키는 `app.js`의 `VAPID_PUBLIC`과 같은 값, 비밀 키는 저장소에 넣지 않음)
+
+### 새 버전 올리기
+`app.js`의 `APP_VERSION`과 `version.json`의 `version`을 같은 숫자로 올려서 함께 커밋. 앱의 가족 편집 → 업데이트 버튼이 `version.json`을 보고 새 버전을 받아요.

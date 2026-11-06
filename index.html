@@ -228,6 +228,9 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 .switch[aria-checked="true"] i{background:var(--ok)}
 .switch[aria-checked="true"] i::after{transform:translateX(24px)}
 .switch b{font-size:15px;min-width:2.6em;text-align:left}
+.about{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.about small{color:var(--muted);font-size:14px}
+.about .btn{flex:none;width:auto;padding:12px 22px}
 .notify{gap:12px;background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
 .notify p{margin:0;font-size:17px}
 .new{display:inline-block;font-size:12px;font-weight:800;background:var(--voice);color:var(--voice-ink);border-radius:99px;padding:1px 8px;vertical-align:2px;margin-left:4px}
@@ -324,6 +327,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
     </div>
     <div class="panel sound" id="soundPanel"></div>
     <div class="panel" id="storePanel"><div class="store" id="store"></div></div>
+    <div class="panel" id="aboutPanel"></div>
   </section>
 
   <p class="note">음성은 90일 동안 보관돼요. 새 소식 알림(푸시)은 다음 업데이트에서 붙어요.</p>

@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.4'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+const APP_VERSION = '1.5'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -99,6 +99,44 @@ const pendingAsks = () => S.asks.filter(a => a.from_id !== S.me.id && (a.to_id =
 
 document.querySelector('#verTag').textContent = 'v' + APP_VERSION;
 $('verFoot').textContent = 'v' + APP_VERSION;
+
+// ---------- 업데이트 ----------
+// version.json(서버의 최신 버전)과 지금 버전을 비교해서, 새 버전이 있으면 파일을 새로 받아 다시 열어요.
+const newer = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+const APP_FILES = ['./', 'index.html', 'app.js', 'sw.js', 'manifest.webmanifest'];
+
+async function checkUpdate(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '확인 중…'; }
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const latest = String((await r.json()).version || '');
+    if (!latest || !newer(latest, APP_VERSION)) { toast('이미 최신 버젼 입니다.'); return; }
+    toast('새 버젼 v' + latest + '을 받는 중이에요…');
+    // 폰에 저장된 예전 파일 대신 서버의 새 파일을 받아 두기
+    await Promise.all(APP_FILES.map(f => fetch(f, { cache: 'reload' }).catch(() => {})));
+    if (swReg) { try { await swReg.update(); } catch (_) {} }
+    if (window.caches) { try { for (const k of await caches.keys()) await caches.delete(k); } catch (_) {} }
+    try { sessionStorage.setItem('byeolil-update-to', latest); } catch (_) {}
+    location.reload();
+  } catch (e) {
+    console.error(e); toast('업데이트를 확인하지 못했어요. 인터넷 연결을 확인해 주세요.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '업데이트'; }
+  }
+}
+// 업데이트 후 다시 열렸을 때 결과 알려 주기
+function updateResult() {
+  let to = null; try { to = sessionStorage.getItem('byeolil-update-to'); sessionStorage.removeItem('byeolil-update-to'); } catch (_) {}
+  if (!to) return;
+  setTimeout(() => toast(newer(to, APP_VERSION) ? '새 버젼을 받는 중이에요. 잠시 후 업데이트를 한 번 더 눌러 주세요.' : '최신 버젼으로 업데이트 됐습니다.'), 600);
+}
+function renderAbout() {
+  $('aboutPanel').innerHTML = '<div class="about"><span><b>앱 버젼 v' + APP_VERSION + '</b><br><small>새 기능이 나왔는지 확인하고 바로 받아요.</small></span>' +
+    '<button class="btn btn-ghost" id="updateBtn">업데이트</button></div>';
+}
+document.addEventListener('click', e => { const b = e.target.closest('#updateBtn'); if (b) checkUpdate(b); });
 
 // ---------- 그리기 ----------
 function render() {
@@ -211,6 +249,7 @@ function renderManage() {
   inv.textContent = S.members.length >= MAX_MEMBERS ? '가족 자리가 다 찼어요' : '+ 가족 초대하기';
   $('storePanel').hidden = !isAdmin();
   renderSound();
+  renderAbout();
   renderStore();
   renderSheet();
 }
@@ -865,6 +904,7 @@ async function boot() {
 }
 
 async function start() {
+  updateResult();
   if ('serviceWorker' in navigator) {
     try { swReg = await navigator.serviceWorker.register('sw.js'); } catch (e) { console.warn('서비스 워커 등록 실패', e); }
   }
