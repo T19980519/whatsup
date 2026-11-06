@@ -188,7 +188,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
       <circle cx="40" cy="47" r="4" fill="var(--sun-ink)"/><circle cx="60" cy="47" r="4" fill="var(--sun-ink)"/>
       <path d="M41 58q9 8 18 0" stroke="var(--sun-ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
     </svg>
-    <h1>별일없지?</h1><span class="tag">시안 v0.6</span>
+    <h1>별일없지?</h1><span class="tag" id="verTag">시안 v0.7</span>
   </div>
 
   <div class="roles" role="tablist">
@@ -253,11 +253,14 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
     </div>
   </div>
   <p class="note">화면과 흐름 확인용 시안입니다. 실제 녹음과 알림은 서버 연결 단계에서 붙입니다.</p>
-  <footer class="credit">© 2026 별일없지? · Developed by SEOKWOO KIM</footer>
+  <footer class="credit">© 2026 별일없지? <span id="verFoot">v0.7</span> · Developed by SEOKWOO KIM</footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
+const APP_VERSION = '0.7'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+document.getElementById('verTag').textContent = '시안 v' + APP_VERSION;
+document.getElementById('verFoot').textContent = 'v' + APP_VERSION;
 const DEADLINE_HOUR = 11; // 부모님이 계신 곳 시간으로 오전 11시까지 안부 없으면 알림
 // 지역 → 도시(시간대). 시간대가 여러 개인 지역은 도시를 골라요
 const REGIONS = {
