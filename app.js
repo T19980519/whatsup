@@ -1,13 +1,13 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.1'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+const APP_VERSION = '1.2'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
 
 const MAX_MEMBERS = 8;      // 가족방 최대 인원
-const MAX_REC = 180;        // 음성 1개당 최대 3분
+const MAX_REC = 60;         // 음성 1개당 최대 1분 (서버 저장 공간 아끼기)
 const KEEP_DAYS = 90;       // 음성 보관 기간
 const QUOTA_MB = 1024;      // 무료 저장 공간 1GB
 const ASK_DAYS = 14;        // 소식에 보여줄 안부 기간
@@ -125,7 +125,7 @@ function renderHome() {
   const list = others();
   if (S.to !== 'all' && !memberOf(S.to)) S.to = list.length > 1 ? 'all' : list[0] ? list[0].id : null;
   $('people').innerHTML = !list.length
-    ? '<p class="empty" style="grid-column:1/-1">아직 가족이 없어요.<br>' + (isAdmin() ? '가족정리에서 가족을 초대해 주세요.' : '방장에게 초대를 부탁해 주세요.') + '</p>'
+    ? '<p class="empty" style="grid-column:1/-1">아직 가족이 없어요.<br>' + (isAdmin() ? '가족 편집에서 가족을 초대해 주세요.' : '방장에게 초대를 부탁해 주세요.') + '</p>'
     : (list.length > 1 ? '<button class="person" data-to="all" aria-pressed="' + (S.to === 'all') + '"><span class="ava all">' + GROUP + '</span><strong>가족 모두</strong><small>' + list.length + '명</small></button>' : '') +
       list.map(m => '<button class="person" data-to="' + m.id + '" aria-pressed="' + (S.to === m.id) + '">' +
         avaHtml(m) + '<strong>' + esc(m.name) + '</strong>' +
@@ -211,7 +211,7 @@ function renderStore() {
   $('store').innerHTML =
     '<div class="store-top"><span>저장 공간</span><b>' + pct.toFixed(1) + '% 사용</b></div>' +
     '<div class="meter ' + (pct >= 85 ? 'high' : pct >= 60 ? 'mid' : '') + '" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct.toFixed(0) + '" aria-label="저장 공간 사용량"><i style="width:' + Math.max(2, Math.min(100, pct)) + '%"></i></div>' +
-    '<p class="num">' + used.toFixed(1) + 'MB / 1GB · 남은 공간으로 약 ' + Math.floor((QUOTA_MB - used) * 1024 / 4 / 60).toLocaleString() + '분 더 녹음할 수 있어요</p>' +
+    '<p class="num">' + used.toFixed(1) + 'MB / 1GB · 남은 공간으로 1분짜리 목소리 약 ' + Math.floor((QUOTA_MB - used) * 1024 / 360).toLocaleString() + '개를 더 보낼 수 있어요</p>' +
     '<p>목소리는 ' + KEEP_DAYS + '일이 지나면 자동으로 지워져요. 한 사람에게 보낸 목소리는 보낸 사람과 받는 사람만 들을 수 있어요.</p>';
 }
 
@@ -321,8 +321,8 @@ let rec = null;
       to = S.to; t0 = Date.now(); btn.classList.add('rec');
       const tick = () => {
         const s = Math.min(MAX_REC, Math.round((Date.now() - t0) / 1000));
-        label.textContent = '녹음 중 ' + mmss(s) + ' / 3:00 · 누르면 보내요';
-        if (s >= MAX_REC) { btn.click(); toast('3분이 되어 자동으로 보냈어요'); }
+        label.textContent = '녹음 중 ' + mmss(s) + ' / ' + mmss(MAX_REC) + ' · 누르면 보내요';
+        if (s >= MAX_REC) { btn.click(); toast('1분이 되어 자동으로 보냈어요'); }
       };
       tick(); iv = setInterval(tick, 250);
     } else {
@@ -346,6 +346,47 @@ async function squareJpeg(file, size) {
   const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, size, size);
   g.drawImage(src, (w - s) / 2, (h - s) / 2, s, s, 0, 0, size, size);
   return new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+}
+
+// 녹음 파일을 MP3로 바꾸기: 아이폰·안드로이드 어디서나 재생되는 형식
+// (모노 22kHz 48kbps → 1분에 약 360KB)
+const MP3_RATE = 22050, MP3_KBPS = 48;
+let lameReady = null;
+function loadLame() {
+  if (window.lamejs) return Promise.resolve();
+  if (!lameReady) lameReady = new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
+    sc.onload = () => res(); sc.onerror = () => { lameReady = null; rej(new Error('MP3 변환기를 불러오지 못했어요')); };
+    document.head.appendChild(sc);
+  });
+  return lameReady;
+}
+async function toMp3(blob) {
+  await loadLame();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ac = new AC();
+  let decoded;
+  try {
+    const buf = await blob.arrayBuffer();
+    decoded = await new Promise((res, rej) => {
+      const p = ac.decodeAudioData(buf, res, rej);
+      if (p && p.then) p.then(res, rej);
+    });
+  } finally { ac.close && ac.close(); }
+  // 모노로 합치고 22kHz로 바꾸기
+  const frames = Math.max(1, Math.ceil(decoded.duration * MP3_RATE));
+  const off = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, frames, MP3_RATE);
+  const src = off.createBufferSource(); src.buffer = decoded; src.connect(off.destination); src.start();
+  const rendered = await off.startRendering();
+  const f32 = rendered.getChannelData(0);
+  const pcm = new Int16Array(f32.length);
+  for (let i = 0; i < f32.length; i++) { const v = Math.max(-1, Math.min(1, f32[i])); pcm[i] = v < 0 ? v * 0x8000 : v * 0x7fff; }
+  const enc = new window.lamejs.Mp3Encoder(1, MP3_RATE, MP3_KBPS);
+  const parts = [];
+  for (let i = 0; i < pcm.length; i += 1152) { const d = enc.encodeBuffer(pcm.subarray(i, i + 1152)); if (d.length) parts.push(new Uint8Array(d)); }
+  const end = enc.flush(); if (end.length) parts.push(new Uint8Array(end));
+  return { blob: new Blob(parts, { type: 'audio/mpeg' }), seconds: decoded.duration };
 }
 
 // ---------- 서버 ----------
@@ -376,6 +417,7 @@ const api = {
     if (!window.MediaRecorder || !navigator.mediaDevices) { toast('이 브라우저는 녹음을 지원하지 않아요'); return false; }
     try { recStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
     catch (_) { toast('마이크를 쓸 수 있게 허락해 주세요'); return false; }
+    loadLame().catch(() => {});
     recMime = ['audio/mp4', 'audio/mp4;codecs=mp4a.40.2', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
       .find(t => MediaRecorder.isTypeSupported(t)) || '';
     chunks = [];
@@ -391,12 +433,16 @@ const api = {
     r.onstop = async () => {
       recStream.getTracks().forEach(t => t.stop());
       renderHome();
-      const type = (r.mimeType || recMime || 'audio/webm').split(';')[0];
-      const blob = new Blob(chunks, { type });
-      if (blob.size < 1000) return toast('녹음이 너무 짧아요. 다시 해 주세요');
-      const ext = type === 'audio/mp4' || type === 'audio/aac' ? 'm4a' : type === 'audio/ogg' ? 'ogg' : 'webm';
-      const path = S.me.family_id + '/' + crypto.randomUUID() + '.' + ext;
+      const rawType = (r.mimeType || recMime || 'audio/webm').split(';')[0];
+      const raw = new Blob(chunks, { type: rawType });
+      if (raw.size < 1000) return toast('녹음이 너무 짧아요. 다시 해 주세요');
       toast('보내는 중…');
+      // 아이폰·안드로이드 모두 들을 수 있게 MP3로 바꿔요. 혹시 안 되면 원래 파일 그대로 보내요.
+      let blob = raw, type = rawType;
+      try { const mp3 = await toMp3(raw); if (mp3.blob.size > 1000) { blob = mp3.blob; type = 'audio/mpeg'; } }
+      catch (e) { console.warn('MP3 변환 실패, 원본으로 보냄', e); }
+      const ext = type === 'audio/mpeg' ? 'mp3' : type === 'audio/mp4' || type === 'audio/aac' ? 'm4a' : type === 'audio/ogg' ? 'ogg' : 'webm';
+      const path = S.me.family_id + '/' + crypto.randomUUID() + '.' + ext;
       const up = await sb.storage.from('voices').upload(path, blob, { contentType: type, upsert: false });
       if (up.error) return toast('보내지 못했어요: ' + errMsg(up.error));
       const ins = await sb.from('voices').insert({
@@ -568,7 +614,7 @@ $('obCreateBtn').addEventListener('click', e => busy(e.currentTarget, async () =
   await ensureSession();
   const { error } = await sb.rpc('create_family', { p_family_name: $('obFamName').value.trim(), p_my_name: name, p_region: createState.region, p_city: createState.city });
   if (error) throw error;
-  toast('가족방을 만들었어요. 가족정리에서 가족을 초대해 보세요');
+  toast('가족방을 만들었어요. 가족 편집에서 가족을 초대해 보세요');
   await boot();
 }));
 $('obJoinBtn').addEventListener('click', e => busy(e.currentTarget, async () => {
