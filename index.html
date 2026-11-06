@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>별일없지?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="부모님 안부 버튼과 가족 음성 메시지">
+<meta name="description" content="멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱">
 <meta name="theme-color" content="#DDF0FF">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800;900&display=swap">
 <style>
-/* Layout: one phone-width column under a sky band with clouds; parent screen = smiling sun button + voice button. Rounded, chunky, big text. */
+/* Layout: one phone-width column under a sky band with clouds. Home = pick a family member, ask "별일 없지?" or send a voice; answer incoming asks with one big sun button. Rounded, chunky, big text. */
 :root{
   --sky:#DDF0FF; --bg:#F4FAFF; --surface:#FFFFFF; --ink:#2B2A3D; --muted:#6B6A82; --line:#E3E9F4;
   --sun:#FFC83D; --sun-deep:#F2A007; --sun-ink:#4A3000; --cheek:#FF9DB0;
@@ -186,6 +186,38 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 /* 고딕체 굵기: 제목·버튼은 굵게 */
 .roles button,.greet,.mic,.btn,.code,.ava,.demo button{font-weight:800;letter-spacing:-.01em}
 h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
+
+/* v1.0: 가족끼리 묻고 답하기 */
+.tabs{grid-template-columns:repeat(2,1fr)}
+.inbox{background:color-mix(in srgb,var(--sun) 22%,var(--surface));box-shadow:0 6px 0 color-mix(in srgb,var(--sun-deep) 45%,var(--line))}
+.inbox .greet{font-size:26px}
+.inbox .big{margin-block:8px 22px}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
+.person{font:inherit;color:inherit;border:3px solid transparent;background:var(--bg);border-radius:22px;padding:12px 6px 10px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;min-height:44px;text-align:center}
+.person .ava{width:56px;height:56px;font-size:24px}
+.person strong{font-size:17px;font-weight:800;line-height:1.25;word-break:break-all}
+.person small{font-size:12px;color:var(--muted);line-height:1.3;font-variant-numeric:tabular-nums}
+.person[aria-pressed="true"]{border-color:var(--sun-deep);background:color-mix(in srgb,var(--sun) 28%,var(--surface))}
+.ava.all{background:var(--ok-soft);color:var(--ok)}
+.ava.all svg{width:30px;height:30px}
+.to-line{margin:0;text-align:center;font-size:17px;color:var(--muted)}
+.to-line b{color:var(--ink)}
+.act{width:100%;border:0;font:inherit;font-family:var(--display);font-size:23px;border-radius:99px;padding:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:12px;background:var(--sun);color:var(--sun-ink);box-shadow:0 6px 0 var(--sun-deep)}
+.act:active{transform:translateY(4px);box-shadow:0 2px 0 var(--sun-deep)}
+.act svg{width:28px;height:28px;flex:none}
+.act:disabled,.mic:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.item{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:20px;background:var(--bg)}
+.item .ic{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--sun) 35%,var(--surface));color:var(--sun-ink)}
+.item .ic svg{width:26px;height:26px}
+.item div{min-width:0;flex:1}
+.item strong{display:block;font-size:17px;font-weight:800;line-height:1.35}
+.item em{font-style:normal;font-size:14px;color:var(--muted)}
+.chip{display:inline-block;margin-top:6px;font-size:14px;font-weight:700;border-radius:99px;padding:3px 12px}
+.chip.ok{background:var(--ok-soft);color:color-mix(in srgb,var(--ok) 75%,var(--ink))}
+.chip.wait{background:var(--surface);color:var(--muted)}
+.empty{margin:0;color:var(--muted);text-align:center;padding:8px 0}
 </style>
 </head>
 <body>
@@ -203,26 +235,22 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
       <circle cx="40" cy="47" r="4" fill="var(--sun-ink)"/><circle cx="60" cy="47" r="4" fill="var(--sun-ink)"/>
       <path d="M41 58q9 8 18 0" stroke="var(--sun-ink)" stroke-width="4" fill="none" stroke-linecap="round"/>
     </svg>
-    <h1>별일없지?</h1><span class="tag" id="verTag">시안 v0.7</span>
+    <h1>별일없지?</h1><span class="tag" id="verTag"></span>
   </div>
 
-  <div class="roles" role="tablist">
-    <button id="tab-parent" role="tab" aria-selected="true" data-role="parent">부모님</button>
-    <button id="tab-me" role="tab" aria-selected="false" data-role="me">본인</button>
-    <button id="tab-family" role="tab" aria-selected="false" data-role="family">우리가족</button>
-    <button id="tab-manage" role="tab" aria-selected="false" data-role="manage">가족정리</button>
+  <div class="roles tabs" role="tablist" id="tabs" hidden>
+    <button id="tab-home" role="tab" aria-selected="true" data-tab="home">홈</button>
+    <button id="tab-manage" role="tab" aria-selected="false" data-tab="manage">가족정리</button>
   </div>
 
   <!-- 처음 들어왔을 때: 가족방 만들기 / 초대 코드로 들어오기 -->
-  <section class="screen" id="onboard" hidden>
+  <section class="screen" id="onboard">
     <div class="panel onboard" id="obJoin" hidden>
       <h2>가족방에 들어가기</h2>
       <p class="sub" style="margin:0">가족에게 받은 초대 코드를 넣고 이름을 적어 주세요.</p>
       <p class="ios-tip" data-ios-tip hidden>아이폰은 먼저 <b>홈 화면에 추가</b>한 뒤, 홈 화면의 해님 아이콘으로 열어서 들어가 주세요. 사파리에서 들어가면 홈 화면 앱에서는 다시 초대를 받아야 해요.</p>
       <label class="f" for="obCode">초대 코드 (6자리)<input id="obCode" maxlength="6" autocomplete="off" autocapitalize="characters" style="letter-spacing:.2em;text-transform:uppercase"></label>
-      <label class="f" for="obJoinName">표시 이름<input id="obJoinName" maxlength="10" placeholder="예: 어머니, 동생"></label>
-      <div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)">이 폰을 쓰는 사람<div class="seg">
-        <button type="button" data-ob-role="family" aria-pressed="true">가족</button><button type="button" data-ob-role="parent" aria-pressed="false">부모님</button></div></div>
+      <label class="f" for="obJoinName">표시 이름<input id="obJoinName" maxlength="10" placeholder="예: 엄마, 큰아들, 민지"></label>
       <div class="f2" data-ob-region="join"></div>
       <button class="btn btn-sun" id="obJoinBtn">가족방에 들어가기</button>
       <button class="linkbtn" data-ob-switch="create">초대 코드가 없어요 · 새 가족방 만들기</button>
@@ -232,7 +260,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
       <p class="sub" style="margin:0">만든 사람이 방장이 되어 가족을 초대하고 관리해요.</p>
       <p class="ios-tip" data-ios-tip hidden>아이폰은 먼저 <b>홈 화면에 추가</b>한 뒤, 홈 화면의 해님 아이콘으로 열어서 가족방을 만들어 주세요. 사파리에서 만들면 홈 화면 앱에서는 방장 권한이 이어지지 않아요.</p>
       <label class="f" for="obFamName">가족방 이름<input id="obFamName" maxlength="30" value="우리 가족"></label>
-      <label class="f" for="obMyName">내 표시 이름<input id="obMyName" maxlength="10" value="본인"></label>
+      <label class="f" for="obMyName">내 표시 이름<input id="obMyName" maxlength="10" placeholder="예: 큰아들, 민지"></label>
       <div class="f2" data-ob-region="create"></div>
       <button class="btn btn-sun" id="obCreateBtn">가족방 만들기</button>
       <button class="linkbtn" data-ob-switch="join">초대 코드가 있어요</button>
@@ -240,330 +268,45 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
     <div class="panel onboard" id="obLoading"><p class="sub" style="margin:0;text-align:center">불러오는 중…</p></div>
   </section>
 
-  <!-- 부모님 화면 -->
-  <section class="screen" id="parent">
-    <div class="panel">
-      <p class="greet" id="pGreet">오늘 별일 없죠?</p>
-      <p class="sub num date" id="pDate"></p>
-      <button class="big" id="checkBtn"></button>
-      <button class="mic" id="pMic" data-limit><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>목소리 남기기</span></button>
-      <p class="limit">한 번에 3분까지 남길 수 있어요</p>
+  <!-- 홈 -->
+  <section class="screen" id="home" hidden>
+    <div class="panel inbox" id="inbox" hidden>
+      <p class="greet" id="inboxText"></p>
+      <button class="big" id="answerBtn"></button>
     </div>
-    <div class="panel msgs"><h3>가족이 보낸 목소리</h3><div class="list" data-viewer="parent"></div></div>
+
+    <div class="panel">
+      <h3 style="margin:0;font-family:var(--display);font-weight:800;font-size:22px">누구에게 보낼까요?</h3>
+      <div class="people" id="people"></div>
+      <p class="to-line" id="toLine"></p>
+      <button class="act" id="askBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg><span>"별일 없지?" 물어보기</span></button>
+      <button class="mic" id="micBtn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>목소리 보내기</span></button>
+      <p class="limit">목소리는 한 번에 3분까지 보낼 수 있어요</p>
+    </div>
+
+    <div class="panel msgs">
+      <h3>소식</h3>
+      <div class="list" id="feed"></div>
+    </div>
   </section>
 
-  <!-- 본인 -->
-  <section class="screen" id="me" hidden>
-    <div class="panel">
-      <div class="status" data-status></div>
-      <div class="clocks" data-clocks="me"></div>
-      <p class="rule" data-rule></p>
-    </div>
-    <div class="panel msgs"><h3>음성 메시지</h3><div class="list" data-viewer="me"></div></div>
-    <button class="mic" data-mic="me"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>부모님께 목소리 보내기</span></button>
-  </section>
-
-  <!-- 우리가족 -->
-  <section class="screen" id="family" hidden>
-    <div class="panel">
-      <div class="status" data-status></div>
-      <div class="clocks" data-clocks="family"></div>
-      <p class="rule" data-rule></p>
-    </div>
-    <div class="panel msgs"><h3>음성 메시지</h3><div class="list" data-viewer="family"></div></div>
-    <button class="mic" data-mic="family"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>부모님께 목소리 보내기</span></button>
-  </section>
-
-  <!-- 가족정리 (방장만) -->
+  <!-- 가족정리 -->
   <section class="screen" id="manage" hidden>
-    <div class="panel" id="famPanel">
+    <div class="panel">
       <div class="fam-head"><h3>가족 구성원</h3><span class="count" id="famCount"></span></div>
-      <p class="sub" style="font-size:15px;margin:0">구성원을 눌러 이름, 역할, 사는 지역을 바꿀 수 있어요. 지역에 맞춰 시간이 표시돼요.</p>
-      <p class="alert-all">안부가 없을 때 알림 받는 사람: <b>가족 전원</b></p>
-            <div class="members" id="members"></div>
+      <p class="sub" style="font-size:15px;margin:0" id="manageHint"></p>
+      <div class="members" id="members"></div>
       <div id="sheet"></div>
       <button class="btn btn-sun" id="inviteBtn">+ 가족 초대하기</button>
     </div>
-    <div class="panel"><div class="store" id="store"></div></div>
+    <div class="panel" id="storePanel"><div class="store" id="store"></div></div>
   </section>
 
-  <div class="panel demo-only">
-    <p class="sub" style="font-size:14px">시연용 버튼 (실제 앱에는 없음)</p>
-    <div class="demo">
-      <button id="demoLate">마감 지난 상황 보기</button>
-      <button id="demoReset">처음 상태로</button>
-    </div>
-  </div>
-  <p class="note demo-only">화면과 흐름 확인용 시안입니다. 실제 녹음과 알림은 서버 연결 단계에서 붙입니다.</p>
-  <p class="note live-only">음성은 90일 동안 보관돼요. 안부 알림은 다음 업데이트에서 붙어요.</p>
-  <footer class="credit">© 2026 별일없지? <span id="verFoot">v0.9</span> · Developed by SEOKWOO KIM</footer>
+  <p class="note">음성은 90일 동안 보관돼요. 새 소식 알림(푸시)은 다음 업데이트에서 붙어요.</p>
+  <footer class="credit">© 2026 별일없지? <span id="verFoot"></span> · Developed by SEOKWOO KIM</footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
-<script>
-const APP_VERSION = '0.9'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
-// 서버(Supabase) 연결 정보. 비어 있으면 시연(시안) 모드로 동작해요.
-// publishable key는 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
-const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
-let LIVE = null; // 서버 연결 모드일 때 아래 module 스크립트가 채워요
-document.getElementById('verTag').textContent = (SUPABASE_URL ? 'v' : '시안 v') + APP_VERSION;
-document.getElementById('verFoot').textContent = 'v' + APP_VERSION;
-const DEADLINE_HOUR = 11; // 부모님이 계신 곳 시간으로 오전 11시까지 안부 없으면 알림
-// 지역 → 도시(시간대). 시간대가 여러 개인 지역은 도시를 골라요
-const REGIONS = {
-  // 대한민국은 시간대가 하나지만 광역시·도별 가장 큰 도시를 고를 수 있어요
-  '대한민국': [['서울','Asia/Seoul'],['부산','Asia/Seoul'],['인천','Asia/Seoul'],['대구','Asia/Seoul'],['대전','Asia/Seoul'],['광주','Asia/Seoul'],['울산','Asia/Seoul'],['세종','Asia/Seoul'],['수원 (경기)','Asia/Seoul'],['원주 (강원)','Asia/Seoul'],['청주 (충북)','Asia/Seoul'],['천안 (충남)','Asia/Seoul'],['전주 (전북)','Asia/Seoul'],['순천 (전남)','Asia/Seoul'],['포항 (경북)','Asia/Seoul'],['창원 (경남)','Asia/Seoul'],['제주 (제주)','Asia/Seoul']],
-  '캐나다':   [['토론토·몬트리올','America/Toronto'],['밴쿠버','America/Vancouver'],['캘거리·에드먼턴','America/Edmonton'],['위니펙','America/Winnipeg'],['핼리팩스','America/Halifax']],
-  '미국':     [['뉴욕·애틀랜타','America/New_York'],['시카고·댈러스','America/Chicago'],['덴버','America/Denver'],['피닉스','America/Phoenix'],['LA·시애틀','America/Los_Angeles'],['앵커리지','America/Anchorage'],['하와이','Pacific/Honolulu']],
-  '유럽':     [['런던·리스본','Europe/London'],['파리·베를린·로마','Europe/Paris'],['아테네·헬싱키','Europe/Athens'],['모스크바·이스탄불','Europe/Moscow']],
-  '아프리카': [['라고스·카사블랑카','Africa/Lagos'],['카이로','Africa/Cairo'],['요하네스버그','Africa/Johannesburg'],['나이로비','Africa/Nairobi']],
-  '호주':     [['시드니·멜버른','Australia/Sydney'],['브리즈번','Australia/Brisbane'],['애들레이드','Australia/Adelaide'],['다윈','Australia/Darwin'],['퍼스','Australia/Perth']],
-  '동남아':   [['방콕·하노이','Asia/Bangkok'],['싱가포르·쿠알라룸푸르','Asia/Singapore'],['마닐라','Asia/Manila'],['자카르타','Asia/Jakarta']]
-};
-const MAX_FAMILY = 5; // 부모님 외 가족 자리
-const S = { checked:null, late:false, msgs:[], members:[], sheet:null };
-const MAX_REC = 180;        // 음성 1개당 최대 3분
-const KEEP_DAYS = 90;       // 90일 뒤 자동 삭제
-const QUOTA_MB = 1024;      // 무료 저장 공간 1GB
-const KB_PER_SEC = 3;       // 음성 압축 기준 1분 약 180KB
-const BASE_MB = 38.4;       // 예시: 지금까지 쌓인 음성 용량
-const mmss = s => Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-const seed = () => [{id:'d1', from:'sib', to:'parent', len:74, when:'어제 저녁', age:1, ex:true},
-                    {id:'d2', from:'mom', to:'all', len:142, when:'어제 오전', age:1, ex:true}];
-const seedMembers = () => [
-  {id:'mom', name:'어머니', role:'parent', since:'10월 28일', region:'대한민국', city:0},
-  {id:'me',  name:'본인',   role:'admin',  since:'10월 28일', region:'캐나다',   city:0},
-  {id:'sib', name:'동생',   role:'family', since:'10월 29일', region:'대한민국', city:0, ex:true}];
-S.msgs = seed(); S.members = seedMembers();
-const ROLE = {parent:'부모님', admin:'방장', family:'가족'};
-const myIdFor = v => LIVE ? S.meId : (v==='parent'?'mom':v==='me'?'me':'sib');
-const isMe = m => !!m && m.id === (LIVE ? S.meId : 'me');
-const nameOf = id => (S.members.find(m=>m.id===id)||{}).name || '나간 가족';
-const parentName = () => (S.members.find(m=>m.role==='parent')||{name:'부모님'}).name;
-const memberOf = id => S.members.find(m=>m.id===id);
-const cityOf = m => { const c = (REGIONS[m&&m.region]||REGIONS['대한민국']); return c[m&&m.city] || c[0]; };
-const tzOf = m => cityOf(m)[1];
-const placeOf = m => cityOf(m)[0];
-const parentM = () => S.members.find(m=>m.role==='parent') || {region:'대한민국', city:0};
-const viewerOf = v => LIVE ? (memberOf(S.meId) || parentM()) : v==='me' ? memberOf('me') : v==='family' ? (memberOf('sib') || S.members.find(m=>m.role==='family')) : parentM();
-const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-// 표정 얼굴: happy(웃는 눈), wait(동그란 눈), worry(걱정)
-function face(mood){
-  const eyes = mood==='happy'
-    ? '<path d="M28 44q8-9 16 0M56 44q8-9 16 0" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>'
-    : '<circle cx="36" cy="42" r="6" fill="currentColor"/><circle cx="64" cy="42" r="6" fill="currentColor"/>';
-  const mouth = mood==='worry'
-    ? '<path d="M38 70q12-8 24 0" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>'
-    : mood==='happy' ? '<path d="M34 60q16 18 32 0z" fill="currentColor"/>'
-    : '<path d="M38 62q12 10 24 0" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>';
-  return '<svg class="face" viewBox="0 0 100 90" aria-hidden="true">'+eyes+mouth+
-    '<ellipse cx="22" cy="58" rx="8" ry="5" fill="var(--cheek)" opacity=".8"/><ellipse cx="78" cy="58" rx="8" ry="5" fill="var(--cheek)" opacity=".8"/></svg>';
-}
-const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
-const PLAY = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 4 2.5z"/></svg>';
-
-const fmt = (tz, opt) => new Intl.DateTimeFormat('ko-KR', {timeZone:tz, ...opt});
-const zParts = (tz,d) => Object.fromEntries(fmt(tz,{year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(d).map(p=>[p.type,p.value]));
-const tzOffset = (tz,d) => { const p=zParts(tz,d); return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute) - Math.floor(d.getTime()/60000)*60000; };
-// 부모님 시간대로 오늘 오전 11시가 몇 시(UTC)인지
-function deadlineDate(now, tz){ const p=zParts(tz,now); const guess=Date.UTC(+p.year,+p.month-1,+p.day,DEADLINE_HOUR,0); return new Date(guess - tzOffset(tz,new Date(guess - tzOffset(tz,new Date(guess))))); }
-const timeKo = (tz,d) => fmt(tz,{hour:'numeric',minute:'2-digit'}).format(d);
-const dayKo = (tz,d) => fmt(tz,{month:'long',day:'numeric',weekday:'short'}).format(d);
-
-function render(){
-  const now = new Date();
-  const P = parentM(), ptz = tzOf(P), pplace = placeOf(P);
-  document.getElementById('pDate').textContent = pplace + ' ' + dayKo(ptz,now) + ' · ' + timeKo(ptz,now);
-  const pn = parentName();
-  const dl = deadlineDate(now, ptz);
-  if (LIVE){ // 오늘(부모님 시간 기준) 누른 기록이 있으면 완료, 마감 지나면 늦음
-    const day = d => dayKo(ptz, d);
-    S.checked = S.lastCheck && day(S.lastCheck) === day(now) ? S.lastCheck : null;
-    S.late = !S.checked && now >= dl;
-  }
-  document.getElementById('pGreet').textContent = '오늘 별일 없죠?';
-  const btn = document.getElementById('checkBtn');
-  if (S.checked){ btn.classList.add('done'); btn.innerHTML = face('happy') + '<b>전달했어요!</b><small>' + timeKo(ptz,S.checked) + ' 안부 완료</small>'; }
-  else { btn.classList.remove('done'); btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>한 번 눌러 주세요</small>'; }
-
-
-  document.querySelectorAll('[data-clocks]').forEach(box=>{
-    const mine = viewerOf(box.dataset.clocks);
-    box.innerHTML = S.members.map(m =>
-      '<div class="clock'+(m===mine?' mine':'')+'"><span>'+esc(m.name)+(m.role==='parent'?' (부모님)':'')+(LIVE&&isMe(m)?' · 본인':'')+'</span><b class="num">'+timeKo(tzOf(m),now)+'</b><small>'+esc(m.region+' · '+placeOf(m))+' · '+fmt(tzOf(m),{weekday:'short'}).format(now)+'</small></div>').join('');
-  });
-  document.querySelectorAll('[data-rule]').forEach(e=>{
-    const v = viewerOf(e.closest('.screen').id); const vtz = tzOf(v);
-    e.innerHTML = '안부 마감은 <b>부모님 계신 '+esc(pplace)+' 시간 오전 '+DEADLINE_HOUR+'시</b>' +
-      (vtz===ptz ? '' : ', '+esc(placeOf(v))+' 시간으로는 <b>' + dayKo(vtz,dl) + ' ' + timeKo(vtz,dl) + '</b>') +
-      '예요. 그때까지 버튼이 안 눌리면 가족 모두에게 알림이 가요.'; });
-  let cls, mood, title, desc;
-  if (S.checked){ cls='ok'; mood='happy'; title='오늘도 별일 없어요!'; desc=esc(pplace)+' 시간 ' + timeKo(ptz,S.checked) + '에 '+esc(pn)+'가 누르셨어요'; }
-  else if (S.late){ cls='late'; mood='worry'; title='아직 안부가 없어요'; desc='마감이 지났어요. 전화 한 통 드려 보세요'; }
-  else { cls='wait'; mood='wait'; title='오늘 안부 기다리는 중'; desc=esc(pplace)+' 시간 오전 '+DEADLINE_HOUR+'시까지 기다려요'; }
-  document.querySelectorAll('[data-status]').forEach(e=>{ e.className='status '+cls;
-    e.innerHTML = '<div class="pill">'+face(mood)+'</div><div><h2>'+title+'</h2><p>'+desc+'</p></div>'; });
-
-  document.querySelectorAll('.list').forEach(list=>{
-    const v = list.dataset.viewer;
-    const me = myIdFor(v);
-    const items = LIVE ? S.msgs : S.msgs.filter(m => m.from!==me);
-    list.innerHTML = items.length ? items.map(m => {
-      const bars = Array.from({length:20},(_,i)=>'<i style="height:'+(5+Math.abs(Math.sin(i*1.7+m.len))*15).toFixed(0)+'px"></i>').join('');
-      const fm = memberOf(m.from); const mine = m.from===me;
-      const from = esc(mine ? '내가 보낸 음성' : fm ? fm.name+' ('+placeOf(fm)+')' : nameOf(m.from));
-      const canDel = mine || (memberOf(me)||{}).role==='admin' || (!LIVE && v==='me');
-      return '<div class="msg'+(mine?' mine':'')+'"><button class="play" data-vid="'+esc(m.id||'')+'" aria-pressed="'+(S.playing&&S.playing===m.id)+'" aria-label="'+from+' 음성 재생">'+PLAY+'</button><div><strong>'+from+(m.ex?'<span class="ex">예시</span>':'')+
-        '</strong><em class="num">'+m.when+' · '+mmss(m.len)+'<span class="keep">· '+(KEEP_DAYS-(m.age||0))+'일 뒤 삭제</span></em><div class="bars">'+bars+'</div></div>'+
-        (canDel ? '<button class="del" data-del="'+esc(m.id||'')+'" aria-label="'+from+' 음성 지우기">'+TRASH+'</button>' : '')+
-        (S.delAsk===m.id ? '<div class="del-ask"><span>이 음성을 지울까요? 가족 모두의 화면에서 사라지고 되돌릴 수 없어요.</span>'+
-          '<button class="btn btn-danger-solid" data-del-yes="'+esc(m.id)+'">지우기</button><button class="btn btn-ghost" data-del-no>취소</button></div>' : '')+
-        '</div>';
-    }).join('')
-      : '<p class="sub">아직 음성 메시지가 없어요</p>';
-  });
-  renderFamily();
-}
-
-function renderStore(){
-  const used = LIVE ? S.msgs.reduce((a,m)=>a+(m.size||0),0)/1048576 : BASE_MB + S.msgs.reduce((a,m)=>a+m.len*KB_PER_SEC/1024,0);
-  const pct = used/QUOTA_MB*100;
-  document.getElementById('store').innerHTML =
-    '<div class="store-top"><span>저장 공간'+(LIVE?'':'<span class="ex">예시</span>')+'</span><b>'+pct.toFixed(1)+'% 사용</b></div>'+
-    '<div class="meter '+(pct>=85?'high':pct>=60?'mid':'')+'" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct.toFixed(0)+'" aria-label="저장 공간 사용량"><i style="width:'+Math.max(2,Math.min(100,pct))+'%"></i></div>'+
-    '<p class="num">'+used.toFixed(1)+'MB / 1GB · 남은 공간으로 약 '+Math.floor((QUOTA_MB-used)*1024/KB_PER_SEC/60).toLocaleString()+'분 더 녹음할 수 있어요</p>'+
-    '<p>음성은 '+KEEP_DAYS+'일이 지나면 자동으로 지워져요. '+(LIVE?'새 음성은 앱을 열면 바로 보여요.':'새 음성은 푸시 알림으로 알려 드려요.')+'</p>';
-}
-
-function renderFamily(){
-  renderStore();
-  const admin = !LIVE || (memberOf(S.meId)||{}).role==='admin';
-  document.getElementById('store').parentElement.hidden = !admin;
-  const fam = S.members.filter(m=>m.role!=='parent').length;
-  document.getElementById('famCount').textContent = '가족 '+fam+' / '+MAX_FAMILY+'명';
-  document.getElementById('members').innerHTML = S.members.map(m =>
-    '<button class="member" data-id="'+m.id+'">'+
-    '<span class="ava r-'+m.role+'">'+esc(m.name.slice(0,1))+'</span>'+
-    '<div><strong>'+esc(m.name)+(LIVE&&isMe(m)?' (본인)':'')+(m.ex?'<span class="ex">예시</span>':'')+'</strong><em>'+(ROLE[m.role]+(!LIVE&&m.role==='admin'?' (본인)':''))+' · '+'<span style="white-space:nowrap">'+esc(m.region+' '+placeOf(m))+'</span> · <span style="white-space:nowrap">지금 '+timeKo(tzOf(m),new Date())+'</span></em></div>'+
-    '<span class="chev">›</span></button>').join('');
-  const inv = document.getElementById('inviteBtn');
-  inv.disabled = fam>=MAX_FAMILY; inv.hidden = !!S.sheet || !admin;
-  inv.textContent = fam>=MAX_FAMILY ? '가족 자리가 다 찼어요' : '+ 가족 초대하기';
-  const sh = document.getElementById('sheet');
-  if (!S.sheet){ sh.innerHTML=''; return; }
-  if (S.sheet.type==='invite'){
-    const c = S.sheet.code;
-    sh.innerHTML = '<div class="sheet"><h4>초대 코드가 만들어졌어요</h4>'+
-      '<div class="code">'+c+'</div><p class="link">'+esc(joinLink(c))+'</p>'+
-      '<p class="sub" style="font-size:14px">카카오톡으로 링크를 보내 주세요. 받은 사람은 이름만 입력하면 들어와요. <b>48시간 뒤 자동으로 만료</b>되고, 한 사람만 쓸 수 있어요.<br>부모님 폰은 가까이 사는 가족이 이 링크를 대신 열고 "부모님"을 골라 들어가면 돼요.</p>'+
-      '<div class="row"><button class="btn btn-sun" data-act="copy">링크 복사</button>'+(LIVE?'':'<button class="btn btn-ghost" data-act="demoJoin">합류 시연</button>')+'</div>'+
-      '<button class="btn btn-ghost" data-act="close">닫기</button></div>';
-  } else {
-    const m = S.members.find(x=>x.id===S.sheet.id); if(!m){S.sheet=null;return renderFamily();}
-    const r = S.sheet.role, isAdmin = m.role==='admin', iAmAdmin = admin;
-    const cities = REGIONS[S.sheet.region];
-    const regionSel = '<div class="f2"><label class="f" for="editRegion">사는 지역<select id="editRegion">'+
-        Object.keys(REGIONS).map(k=>'<option'+(k===S.sheet.region?' selected':'')+'>'+k+'</option>').join('')+'</select></label>'+
-      '<label class="f" for="editCity">도시'+(cities.length>1?'':' (시간대 1개)')+'<select id="editCity"'+(cities.length>1?'':' disabled')+'>'+
-        cities.map((c,i)=>'<option value="'+i+'"'+(i===S.sheet.city?' selected':'')+'>'+c[0]+'</option>').join('')+'</select></label></div>'+
-      '<p class="sub" style="font-size:14px;margin:0">그곳 지금 시각: <b class="num">'+timeKo(cities[S.sheet.city][1],new Date())+'</b></p>';
-    sh.innerHTML = '<div class="sheet"><h4>'+esc(m.name)+' 정보 수정</h4>'+
-      '<label class="f" for="editName">표시 이름<input id="editName" maxlength="10" value="'+esc(S.sheet.name)+'"></label>'+
-      (isAdmin || !iAmAdmin ? '' : '<div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)">역할<div class="seg">'+
-        '<button data-role-pick="family" aria-pressed="'+(r==='family')+'">가족</button><button data-role-pick="parent" aria-pressed="'+(r==='parent')+'">부모님</button></div></div>')+
-      regionSel+
-      '<div class="row"><button class="btn btn-sun" data-act="save">저장</button><button class="btn btn-ghost" data-act="close">취소</button></div>'+
-      (isAdmin ? '<p class="sub" style="font-size:13px;margin:0">방장은 역할을 바꾸거나 내보낼 수 없어요.</p>' : !iAmAdmin ? '' : S.sheet.confirm
-        ? '<div class="confirm"><span><b>'+esc(m.name)+'</b>님을 가족방에서 내보낼까요? 그 폰에서는 바로 접속이 끊겨요. 다시 들어오려면 새로 초대해야 해요.</span>'+
-          '<div class="row"><button class="btn btn-danger-solid" data-act="remove">내보내기</button><button class="btn btn-ghost" data-act="cancelRemove">그대로 두기</button></div></div>'
-        : '<button class="btn btn-danger" data-act="askRemove">가족방에서 내보내기</button>')+'</div>';
-  }
-}
-
-document.getElementById('members').addEventListener('click',e=>{
-  const b=e.target.closest('.member'); if(!b) return;
-  const m=S.members.find(x=>x.id===b.dataset.id);
-  if (LIVE && (memberOf(S.meId)||{}).role!=='admin' && m.id!==S.meId){ toast('다른 사람 정보는 방장만 고칠 수 있어요'); return; } S.sheet={type:'edit',id:m.id,name:m.name,role:m.role,region:m.region,city:m.city||0,confirm:false}; renderFamily();
-  document.getElementById('editName')?.focus();
-});
-const joinLink = c => LIVE ? location.origin + location.pathname + '?join=' + c : 'https://byeolil.app/join/' + c;
-document.getElementById('inviteBtn').addEventListener('click',()=>{
-  if (LIVE) return LIVE.createInvite();
-  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c=''; for(let i=0;i<6;i++) c+=A[Math.floor(Math.random()*A.length)];
-  S.sheet={type:'invite',code:c}; renderFamily();
-});
-document.getElementById('sheet').addEventListener('input',e=>{ if(e.target.id==='editName') S.sheet.name=e.target.value; });
-document.getElementById('sheet').addEventListener('change',e=>{
-  if(e.target.id==='editRegion'){ S.sheet.region=e.target.value; S.sheet.city=0; renderFamily(); document.getElementById('editRegion')?.focus(); }
-  else if(e.target.id==='editCity'){ S.sheet.city=+e.target.value; renderFamily(); document.getElementById('editCity')?.focus(); }
-});
-document.getElementById('sheet').addEventListener('click',e=>{
-  const pick=e.target.closest('[data-role-pick]'); if(pick){ S.sheet.role=pick.dataset.rolePick; renderFamily(); return; }
-  const act=(e.target.closest('[data-act]')||{}).dataset?.act; if(!act) return;
-  if(act==='close'){ S.sheet=null; renderFamily(); }
-  else if(act==='copy'){ const t=joinLink(S.sheet.code);
-    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('초대 링크를 복사했어요'),()=>toast('복사가 안 됐어요. 링크를 길게 눌러 복사해 주세요')); }
-  else if(act==='demoJoin'){ S.members.push({id:'f'+Date.now(), name:'새 가족', role:'family', since:'오늘', region:'대한민국', city:0}); S.sheet=null; render(); toast('새 가족이 들어왔어요. 눌러서 이름을 바꿔 보세요'); }
-  else if(act==='save'){ const n=S.sheet.name.trim(); if(!n){ toast('이름을 적어 주세요'); return; }
-    if(S.sheet.role==='parent' && S.members.some(x=>x.role==='parent' && x.id!==S.sheet.id) && S.members.filter(x=>x.role==='parent').length>=2){ toast('부모님은 두 분까지 등록할 수 있어요'); return; }
-    if (LIVE) return LIVE.updateMember(S.sheet);
-    const m=S.members.find(x=>x.id===S.sheet.id); m.name=n; if(m.role!=='admin') m.role=S.sheet.role; m.region=S.sheet.region; m.city=S.sheet.city; S.sheet=null; render(); toast('저장했어요'); }
-  else if(act==='askRemove'){ S.sheet.confirm=true; renderFamily(); }
-  else if(act==='cancelRemove'){ S.sheet.confirm=false; renderFamily(); }
-  else if(act==='remove'){ if (LIVE) return LIVE.removeMember(S.sheet.id); const m=S.members.find(x=>x.id===S.sheet.id); S.members=S.members.filter(x=>x.id!==S.sheet.id); S.sheet=null; render(); toast(m.name+'님을 내보냈어요'); }
-});
-
-document.addEventListener('click',e=>{
-  const d=e.target.closest('[data-del]'); if(d){ S.delAsk = S.delAsk===d.dataset.del ? null : d.dataset.del; render(); return; }
-  if(e.target.closest('[data-del-no]')){ S.delAsk=null; render(); return; }
-  const y=e.target.closest('[data-del-yes]');
-  if(y){ const id=y.dataset.delYes; S.delAsk=null;
-    if (LIVE) return LIVE.deleteVoice(id);
-    S.msgs=S.msgs.filter(m=>m.id!==id); render(); toast('음성을 지웠어요'); return; }
-  const b=e.target.closest('.play'); if(!b) return;
-  if (!LIVE){ toast('시안에서는 재생이 안 돼요'); return; }
-  LIVE.play(b.dataset.vid);
-});
-function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2200); }
-
-document.querySelectorAll('.roles button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.roles button').forEach(x=>x.setAttribute('aria-selected', x===b));
-  ['parent','me','family','manage','onboard'].forEach(id=>document.getElementById(id).hidden = id!==b.dataset.role);
-}));
-document.getElementById('checkBtn').addEventListener('click',e=>{
-  if (S.checked) return;
-  if (LIVE) { LIVE.checkIn(); return; }
-  S.checked = new Date(); S.late=false; render();
-  e.currentTarget.classList.add('pop'); setTimeout(()=>e.currentTarget?.classList.remove('pop'),500);
-  toast('안부가 가족 모두에게 전해졌어요');
-});
-
-function wireMic(btn, from){
-  let t0=null, iv=null, starting=false; const label = btn.querySelector('span'); const orig = label.textContent;
-  btn.addEventListener('click', async ()=>{
-    if (starting) return;
-    if (!t0 && LIVE){ starting=true; const ok = await LIVE.startRec(); starting=false; if(!ok) return; }
-    if (!t0){ t0=Date.now(); btn.classList.add('rec');
-      iv=setInterval(()=>{ const s=Math.min(MAX_REC,Math.round((Date.now()-t0)/1000)); label.textContent='녹음 중 '+mmss(s)+' / 3:00 · 누르면 보내요'; if(s>=MAX_REC){ btn.click(); toast('3분이 되어 자동으로 보냈어요'); } },250);
-      label.textContent='녹음 중 0:00 / 3:00 · 누르면 보내요'; }
-    else { clearInterval(iv); const len=Math.max(1,Math.min(MAX_REC,Math.round((Date.now()-t0)/1000))); t0=null;
-      btn.classList.remove('rec'); label.textContent=orig;
-      if (LIVE) { LIVE.stopRec(len); return; }
-      S.msgs.unshift({id:'d'+Date.now(), from, to: from==='mom'?'all':'parent', len, when:'방금'}); render();
-      toast('목소리를 보냈어요 (시안이라 실제 녹음은 아직)'); }
-  });
-}
-wireMic(document.getElementById('pMic'),'mom');
-wireMic(document.querySelector('[data-mic="me"]'),'me');
-wireMic(document.querySelector('[data-mic="family"]'),'sib');
-
-document.getElementById('demoLate').addEventListener('click',()=>{ S.checked=null; S.late=true; render(); document.getElementById('tab-me').click(); });
-document.getElementById('demoReset').addEventListener('click',()=>{ S.checked=null; S.late=false; S.msgs=seed(); S.members=seedMembers(); S.sheet=null; render(); });
-if (!SUPABASE_URL) render(); else document.getElementById('onboard').hidden=false, document.getElementById('parent').hidden=true, document.querySelector('.roles').hidden=true;
-setInterval(()=>{ if(!SUPABASE_URL || LIVE) render(); }, 30000);
-</script>
-<script type="module" src="live.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
