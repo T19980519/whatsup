@@ -297,8 +297,8 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 const APP_VERSION = '0.8'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
 // 서버(Supabase) 연결 정보. 비어 있으면 시연(시안) 모드로 동작해요.
 // publishable key는 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
-const SUPABASE_URL = '';
-const SUPABASE_KEY = '';
+const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
 let LIVE = null; // 서버 연결 모드일 때 아래 module 스크립트가 채워요
 document.getElementById('verTag').textContent = (SUPABASE_URL ? 'v' : '시안 v') + APP_VERSION;
 document.getElementById('verFoot').textContent = 'v' + APP_VERSION;
