@@ -188,7 +188,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 
   <div class="roles" role="tablist">
     <button id="tab-parent" role="tab" aria-selected="true" data-role="parent">부모님</button>
-    <button id="tab-me" role="tab" aria-selected="false" data-role="me">나</button>
+    <button id="tab-me" role="tab" aria-selected="false" data-role="me">본인</button>
     <button id="tab-family" role="tab" aria-selected="false" data-role="family">한국 가족</button>
   </div>
 
@@ -204,13 +204,13 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
     <div class="panel msgs"><h3>가족이 보낸 목소리</h3><div class="list" data-viewer="parent"></div></div>
   </section>
 
-  <!-- 나 (토론토) -->
+  <!-- 본인 (토론토) -->
   <section class="screen" id="me" hidden>
     <div class="panel">
       <div class="status" data-status></div>
       <div class="clocks">
         <div class="clock"><span>한국 (부모님)</span><b class="num" data-kst></b></div>
-        <div class="clock"><span>토론토 (나)</span><b class="num" data-tor></b></div>
+        <div class="clock"><span>토론토 (본인)</span><b class="num" data-tor></b></div>
       </div>
       <p class="rule" data-rule></p>
     </div>
@@ -232,7 +232,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
       <div class="status" data-status></div>
       <div class="clocks">
         <div class="clock"><span>지금 한국</span><b class="num" data-kst></b></div>
-        <div class="clock"><span>토론토 (석우)</span><b class="num" data-tor></b></div>
+        <div class="clock"><span>토론토 (본인)</span><b class="num" data-tor></b></div>
       </div>
       <p class="rule" data-rule></p>
     </div>
@@ -265,10 +265,10 @@ const seed = () => [{from:'sib', to:'parent', len:74, when:'어제 저녁', age:
                     {from:'mom', to:'all', len:142, when:'어제 오전', age:1, ex:true}];
 const seedMembers = () => [
   {id:'mom', name:'어머니', role:'parent', since:'10월 28일'},
-  {id:'me',  name:'석우',   role:'admin',  since:'10월 28일'},
+  {id:'me',  name:'본인',   role:'admin',  since:'10월 28일'},
   {id:'sib', name:'동생',   role:'family', since:'10월 29일', ex:true}];
 S.msgs = seed(); S.members = seedMembers();
-const ROLE = {parent:'부모님', admin:'방장 (나)', family:'가족'};
+const ROLE = {parent:'부모님', admin:'방장 (본인)', family:'가족'};
 const nameOf = id => (S.members.find(m=>m.id===id)||{}).name || '나간 가족';
 const parentName = () => (S.members.find(m=>m.role==='parent')||{name:'부모님'}).name;
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
