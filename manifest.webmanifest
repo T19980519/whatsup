@@ -1,7 +1,7 @@
 {
   "name": "별일없지?",
   "short_name": "별일없지",
-  "description": "부모님 안부 버튼과 가족 음성 메시지",
+  "description": "멀리 떨어진 가족끼리 안부를 묻고 목소리를 주고받는 앱",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
