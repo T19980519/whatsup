@@ -321,7 +321,20 @@ async function start() {
     S.sheet = null; toast((m ? m.name : '') + '님을 내보냈어요'); refresh();
   }
 
-  const api = { startRec, stopRec, play, checkIn, createInvite, updateMember, removeMember, refresh };
+  // ---------- 음성 지우기 (보낸 사람 + 방장) ----------
+  async function deleteVoice(id) {
+    const m = S.msgs.find(x => x.id === id);
+    if (!m) return;
+    if (S.playing === id) { audio.pause(); S.playing = null; }
+    const rm = await sb.storage.from('voices').remove([m.path]);
+    if (rm.error) return toast('지우지 못했어요: ' + errMsg(rm.error));
+    const { error } = await sb.rpc('delete_voice', { p_voice: id });
+    if (error) return toast(errMsg(error));
+    S.msgs = S.msgs.filter(x => x.id !== id); render();
+    toast('음성을 지웠어요');
+  }
+
+  const api = { deleteVoice, startRec, stopRec, play, checkIn, createInvite, updateMember, removeMember, refresh };
   await boot();
 }
 

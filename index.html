@@ -169,7 +169,14 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 .onboard .f input{width:100%}
 .ios-tip{background:var(--warn-soft);border-radius:16px;padding:12px 14px;font-size:15px;line-height:1.55;margin:0}
 .linkbtn{font:inherit;font-size:15px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:6px}
-.msg.mine{opacity:.85}
+.msg.mine{opacity:.92}
+.msg{flex-wrap:wrap}
+.del{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.del svg{width:22px;height:22px}
+.del:hover{background:var(--surface)}
+.msg .del-ask{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border-radius:14px;padding:10px 12px;font-size:15px}
+.del-ask span{flex:1 1 100%}
+.del-ask .btn{flex:1 1 0;padding:8px 16px;min-height:44px}
 .play[aria-pressed="true"]{outline:3px solid var(--sun-deep)}
 .live-only{display:none} body.live .live-only{display:block} body.live .demo-only{display:none}
 .credit{font-size:12px;color:var(--muted);margin:4px 0 0;text-align:center;letter-spacing:.02em}
@@ -289,12 +296,12 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
   </div>
   <p class="note demo-only">화면과 흐름 확인용 시안입니다. 실제 녹음과 알림은 서버 연결 단계에서 붙입니다.</p>
   <p class="note live-only">음성은 90일 동안 보관돼요. 안부 알림은 다음 업데이트에서 붙어요.</p>
-  <footer class="credit">© 2026 별일없지? <span id="verFoot">v0.8</span> · Developed by SEOKWOO KIM</footer>
+  <footer class="credit">© 2026 별일없지? <span id="verFoot">v0.9</span> · Developed by SEOKWOO KIM</footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-const APP_VERSION = '0.8'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+const APP_VERSION = '0.9'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
 // 서버(Supabase) 연결 정보. 비어 있으면 시연(시안) 모드로 동작해요.
 // publishable key는 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
@@ -322,8 +329,8 @@ const QUOTA_MB = 1024;      // 무료 저장 공간 1GB
 const KB_PER_SEC = 3;       // 음성 압축 기준 1분 약 180KB
 const BASE_MB = 38.4;       // 예시: 지금까지 쌓인 음성 용량
 const mmss = s => Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-const seed = () => [{from:'sib', to:'parent', len:74, when:'어제 저녁', age:1, ex:true},
-                    {from:'mom', to:'all', len:142, when:'어제 오전', age:1, ex:true}];
+const seed = () => [{id:'d1', from:'sib', to:'parent', len:74, when:'어제 저녁', age:1, ex:true},
+                    {id:'d2', from:'mom', to:'all', len:142, when:'어제 오전', age:1, ex:true}];
 const seedMembers = () => [
   {id:'mom', name:'어머니', role:'parent', since:'10월 28일', region:'대한민국', city:0},
   {id:'me',  name:'본인',   role:'admin',  since:'10월 28일', region:'캐나다',   city:0},
@@ -354,6 +361,7 @@ function face(mood){
   return '<svg class="face" viewBox="0 0 100 90" aria-hidden="true">'+eyes+mouth+
     '<ellipse cx="22" cy="58" rx="8" ry="5" fill="var(--cheek)" opacity=".8"/><ellipse cx="78" cy="58" rx="8" ry="5" fill="var(--cheek)" opacity=".8"/></svg>';
 }
+const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
 const PLAY = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 4 2.5z"/></svg>';
 
 const fmt = (tz, opt) => new Intl.DateTimeFormat('ko-KR', {timeZone:tz, ...opt});
@@ -406,8 +414,14 @@ function render(){
       const bars = Array.from({length:20},(_,i)=>'<i style="height:'+(5+Math.abs(Math.sin(i*1.7+m.len))*15).toFixed(0)+'px"></i>').join('');
       const fm = memberOf(m.from); const mine = m.from===me;
       const from = esc(mine ? '내가 보낸 음성' : fm ? fm.name+' ('+placeOf(fm)+')' : nameOf(m.from));
+      const canDel = mine || (memberOf(me)||{}).role==='admin' || (!LIVE && v==='me');
       return '<div class="msg'+(mine?' mine':'')+'"><button class="play" data-vid="'+esc(m.id||'')+'" aria-pressed="'+(S.playing&&S.playing===m.id)+'" aria-label="'+from+' 음성 재생">'+PLAY+'</button><div><strong>'+from+(m.ex?'<span class="ex">예시</span>':'')+
-        '</strong><em class="num">'+m.when+' · '+mmss(m.len)+'<span class="keep">· '+(KEEP_DAYS-(m.age||0))+'일 뒤 삭제</span></em><div class="bars">'+bars+'</div></div></div>'; }).join('')
+        '</strong><em class="num">'+m.when+' · '+mmss(m.len)+'<span class="keep">· '+(KEEP_DAYS-(m.age||0))+'일 뒤 삭제</span></em><div class="bars">'+bars+'</div></div>'+
+        (canDel ? '<button class="del" data-del="'+esc(m.id||'')+'" aria-label="'+from+' 음성 지우기">'+TRASH+'</button>' : '')+
+        (S.delAsk===m.id ? '<div class="del-ask"><span>이 음성을 지울까요? 가족 모두의 화면에서 사라지고 되돌릴 수 없어요.</span>'+
+          '<button class="btn btn-danger-solid" data-del-yes="'+esc(m.id)+'">지우기</button><button class="btn btn-ghost" data-del-no>취소</button></div>' : '')+
+        '</div>';
+    }).join('')
       : '<p class="sub">아직 음성 메시지가 없어요</p>';
   });
   renderFamily();
@@ -502,6 +516,12 @@ document.getElementById('sheet').addEventListener('click',e=>{
 });
 
 document.addEventListener('click',e=>{
+  const d=e.target.closest('[data-del]'); if(d){ S.delAsk = S.delAsk===d.dataset.del ? null : d.dataset.del; render(); return; }
+  if(e.target.closest('[data-del-no]')){ S.delAsk=null; render(); return; }
+  const y=e.target.closest('[data-del-yes]');
+  if(y){ const id=y.dataset.delYes; S.delAsk=null;
+    if (LIVE) return LIVE.deleteVoice(id);
+    S.msgs=S.msgs.filter(m=>m.id!==id); render(); toast('음성을 지웠어요'); return; }
   const b=e.target.closest('.play'); if(!b) return;
   if (!LIVE){ toast('시안에서는 재생이 안 돼요'); return; }
   LIVE.play(b.dataset.vid);
@@ -531,7 +551,7 @@ function wireMic(btn, from){
     else { clearInterval(iv); const len=Math.max(1,Math.min(MAX_REC,Math.round((Date.now()-t0)/1000))); t0=null;
       btn.classList.remove('rec'); label.textContent=orig;
       if (LIVE) { LIVE.stopRec(len); return; }
-      S.msgs.unshift({from, to: from==='mom'?'all':'parent', len, when:'방금'}); render();
+      S.msgs.unshift({id:'d'+Date.now(), from, to: from==='mom'?'all':'parent', len, when:'방금'}); render();
       toast('목소리를 보냈어요 (시안이라 실제 녹음은 아직)'); }
   });
 }
