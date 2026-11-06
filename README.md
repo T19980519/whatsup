@@ -6,8 +6,9 @@
 - 안부를 받으면 큰 해님 버튼 "별일 없어요" 한 번으로 답하기. 보낸 사람은 소식에서 답 확인
 - 한 사람에게 보낸 목소리는 보낸 사람과 받는 사람만 들을 수 있음. 보낸 사람·방장은 언제든 지우기 가능
 - 가족정리: 카카오톡 초대 링크(6자리 코드, 48시간, 1회용)로 가족 추가, 이름·사는 지역(7개 지역, 도시별 시간대) 수정. 방장 1명 + 가족, 최대 8명
+- 프로필 사진: 가족정리에서 본인 사진 넣기·바꾸기·지우기 (앱에서 정사각형으로 줄여 비공개 저장, 같은 가족만 보기)
 - 음성은 90일 보관
 
 ## 서버 연결 (Supabase)
-SQL Editor에서 순서대로 실행: `supabase/schema.sql` → `supabase/03_v1_family.sql` (02는 schema.sql에 포함).
+SQL Editor에서 순서대로 실행: `supabase/schema.sql` → `supabase/03_v1_family.sql` → `supabase/04_avatars.sql` (02는 schema.sql에 포함).
 Authentication → Allow anonymous sign-ins 켜기. 연결 정보는 `app.js` 위쪽의 `SUPABASE_URL`, `SUPABASE_KEY`(publishable key).

@@ -218,6 +218,15 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 .chip.ok{background:var(--ok-soft);color:color-mix(in srgb,var(--ok) 75%,var(--ink))}
 .chip.wait{background:var(--surface);color:var(--muted)}
 .empty{margin:0;color:var(--muted);text-align:center;padding:8px 0}
+.ava{overflow:hidden}
+.ava img{width:100%;height:100%;object-fit:cover;display:block}
+.ava.ava-lg{width:88px;height:88px;font-size:36px}
+.ava.ic{width:44px;height:44px;font-size:19px}
+.photo-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.photo-btns{display:flex;flex-direction:column;gap:8px;flex:1 1 160px}
+.photo-pick{position:relative;text-align:center;cursor:pointer}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+.photo-pick:focus-within{outline:3px solid var(--voice);outline-offset:3px}
 </style>
 </head>
 <body>

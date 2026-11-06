@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.0'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+const APP_VERSION = '1.1'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -73,11 +73,18 @@ const S = {
   members: [], asks: [], answers: [], voices: [],
   to: null,            // 받는 사람: 구성원 id 또는 'all'
   tab: 'home', sheet: null, playing: null, delAsk: null, answeredAt: 0,
+  avatars: {},        // 구성원 id → { url, at } (사진 주소)
 };
 const memberOf = id => S.members.find(m => m.id === id);
 const nameOf = id => (memberOf(id) || {}).name || '나간 가족';
 const others = () => S.members.filter(m => m.id !== S.me.id);
 const isAdmin = () => S.me && S.me.role === 'admin';
+// 프로필 사진이 있으면 사진, 없으면 이름 첫 글자
+const avaHtml = (m, cls = '') => {
+  const a = m && S.avatars[m.id];
+  return '<span class="ava' + (cls ? ' ' + cls : '') + '">' +
+    (a && a.url ? '<img src="' + esc(a.url) + '" alt="">' : esc((m && m.name || '?').slice(0, 1))) + '</span>';
+};
 const toName = to => to === 'all' || to == null ? '가족 모두' : nameOf(to);
 const answeredBy = askId => S.answers.filter(a => a.ask_id === askId);
 const pendingAsks = () => S.asks.filter(a => a.from_id !== S.me.id && (a.to_id == null || a.to_id === S.me.id) &&
@@ -121,7 +128,7 @@ function renderHome() {
     ? '<p class="empty" style="grid-column:1/-1">아직 가족이 없어요.<br>' + (isAdmin() ? '가족정리에서 가족을 초대해 주세요.' : '방장에게 초대를 부탁해 주세요.') + '</p>'
     : (list.length > 1 ? '<button class="person" data-to="all" aria-pressed="' + (S.to === 'all') + '"><span class="ava all">' + GROUP + '</span><strong>가족 모두</strong><small>' + list.length + '명</small></button>' : '') +
       list.map(m => '<button class="person" data-to="' + m.id + '" aria-pressed="' + (S.to === m.id) + '">' +
-        '<span class="ava">' + esc(m.name.slice(0, 1)) + '</span><strong>' + esc(m.name) + '</strong>' +
+        avaHtml(m) + '<strong>' + esc(m.name) + '</strong>' +
         '<small>' + esc(placeOf(m)) + '<br>' + timeKo(tzOf(m), now) + '</small></button>').join('');
   $('toLine').innerHTML = S.to ? '받는 사람: <b>' + esc(toName(S.to)) + '</b>' : '';
   $('askBtn').disabled = !S.to;
@@ -154,7 +161,8 @@ function askItem(a, at) {
     title = esc(subj(nameOf(a.from_id))) + ' ' + (a.to_id == null ? '가족 모두에게 ' : '') + '안부를 물었어요';
     chip = ans.some(x => x.from_id === S.me.id) ? '<span class="chip ok">✓ 답했어요</span>' : '<span class="chip wait">답을 기다려요</span>';
   }
-  return '<div class="item"><span class="ic">' + SUN + '</span><div><strong>' + title + '</strong><em>' + ago(at) + '</em><br>' + chip + '</div></div>';
+  const icon = mine ? '<span class="ic">' + SUN + '</span>' : avaHtml(memberOf(a.from_id), 'ic');
+  return '<div class="item">' + icon + '<div><strong>' + title + '</strong><em>' + ago(at) + '</em><br>' + chip + '</div></div>';
 }
 
 function voiceItem(v, at) {
@@ -178,12 +186,12 @@ function renderManage() {
   const now = new Date();
   $('famCount').textContent = '가족 ' + S.members.length + ' / ' + MAX_MEMBERS + '명';
   $('manageHint').textContent = isAdmin()
-    ? '구성원을 눌러 이름과 사는 지역을 바꿀 수 있어요. 지역에 맞춰 시간이 표시돼요.'
-    : '내 이름을 눌러 이름과 사는 지역을 바꿀 수 있어요.';
+    ? '구성원을 눌러 이름과 사는 지역을 바꿀 수 있어요. 내 이름을 누르면 프로필 사진도 넣을 수 있어요.'
+    : '내 이름을 눌러 이름, 사는 지역, 프로필 사진을 바꿀 수 있어요.';
   $('members').innerHTML = S.members.map(m => {
     const me = m.id === S.me.id;
     return '<button class="member" data-id="' + m.id + '">' +
-      '<span class="ava' + (m.role === 'admin' ? ' r-admin' : '') + '">' + esc(m.name.slice(0, 1)) + '</span>' +
+      avaHtml(m, m.role === 'admin' ? 'r-admin' : '') +
       '<div><strong>' + esc(m.name) + (me ? ' (본인)' : '') + '</strong><em>' + (m.role === 'admin' ? '방장' : '가족') + ' · ' +
       '<span style="white-space:nowrap">' + esc(m.region + ' ' + placeOf(m)) + '</span> · <span style="white-space:nowrap">지금 ' + timeKo(tzOf(m), now) + '</span></em></div>' +
       (isAdmin() || me ? '<span class="chev">›</span>' : '') + '</button>';
@@ -231,7 +239,13 @@ function renderSheet() {
   const m = memberOf(S.sheet.id);
   if (!m) { S.sheet = null; return renderSheet(); }
   const canRemove = isAdmin() && m.id !== S.me.id;
-  sh.innerHTML = '<div class="sheet"><h4>' + esc(m.name) + ' 정보 수정</h4>' +
+  const self = m.id === S.me.id, hasPhoto = !!m.avatar_path;
+  const photoRow = !self ? '' :
+    '<div class="photo-row">' + avaHtml(m, 'ava-lg') + '<div class="photo-btns">' +
+      '<label class="btn btn-ghost photo-pick">' + (hasPhoto ? '사진 바꾸기' : '프로필 사진 넣기') + '<input type="file" accept="image/*" id="photoInput" class="vh"></label>' +
+      (hasPhoto ? '<button class="btn btn-danger" data-act="photoDel">사진 지우기</button>' : '') +
+    '</div></div>';
+  sh.innerHTML = '<div class="sheet"><h4>' + esc(m.name) + ' 정보 수정</h4>' + photoRow +
     '<label class="f" for="editName">표시 이름<input id="editName" maxlength="10" value="' + esc(S.sheet.name) + '"></label>' +
     regionFields(S.sheet, 'edit') +
     '<p class="sub" style="font-size:14px;margin:0">그곳 지금 시각: <b class="num">' + timeKo(REGIONS[S.sheet.region][S.sheet.city][1], new Date()) + '</b></p>' +
@@ -263,6 +277,7 @@ $('members').addEventListener('click', e => {
 });
 $('sheet').addEventListener('input', e => { if (e.target.id === 'editName') S.sheet.name = e.target.value; });
 $('sheet').addEventListener('change', e => {
+  if (e.target.id === 'photoInput') { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) api.setPhoto(f); return; }
   if (e.target.dataset.k === 'region') { S.sheet.region = e.target.value; S.sheet.city = 0; renderSheet(); $('editRegion')?.focus(); }
   else if (e.target.dataset.k === 'city') { S.sheet.city = +e.target.value; renderSheet(); $('editCity')?.focus(); }
 });
@@ -277,6 +292,7 @@ $('sheet').addEventListener('click', e => {
   }
   else if (act === 'share') navigator.share({ title: '별일없지? 가족방 초대', text: '우리 가족방에 들어와요. 초대 코드: ' + S.sheet.code, url: joinLink(S.sheet.code) }).catch(() => {});
   else if (act === 'save') api.updateMember(S.sheet);
+  else if (act === 'photoDel') api.removePhoto();
   else if (act === 'askRemove') { S.sheet.confirm = true; renderSheet(); }
   else if (act === 'cancelRemove') { S.sheet.confirm = false; renderSheet(); }
   else if (act === 'remove') api.removeMember(S.sheet.id);
@@ -317,6 +333,20 @@ let rec = null;
     }
   });
 })();
+
+// 사진을 가운데 기준 정사각형으로 잘라 작은 JPG로 (폰 사진도 30KB 안팎)
+async function squareJpeg(file, size) {
+  let src;
+  try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+  catch (_) {
+    src = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+  }
+  const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, s = Math.min(w, h);
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, size, size);
+  g.drawImage(src, (w - s) / 2, (h - s) / 2, s, s, 0, 0, size, size);
+  return new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+}
 
 // ---------- 서버 ----------
 let sb = null, channel = null, reloadTimer = null;
@@ -397,6 +427,27 @@ const api = {
     S.voices = S.voices.filter(x => x.id !== id); renderHome(); renderStore();
     toast('목소리를 지웠어요');
   },
+  async setPhoto(file) {
+    let blob;
+    try { blob = await squareJpeg(file, 320); } catch (_) { return toast('이 사진은 열 수 없어요. 다른 사진을 골라 주세요'); }
+    if (!blob) return toast('이 사진은 열 수 없어요. 다른 사진을 골라 주세요');
+    toast('사진을 올리는 중…');
+    const path = S.me.family_id + '/' + S.me.id + '.jpg';
+    const up = await sb.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: true, cacheControl: '60' });
+    if (up.error) return toast('사진을 올리지 못했어요: ' + errMsg(up.error));
+    const { error } = await sb.rpc('set_avatar', { p_has: true });
+    if (error) return toast(errMsg(error));
+    delete S.avatars[S.me.id];
+    toast('프로필 사진을 바꿨어요'); await refresh();
+  },
+  async removePhoto() {
+    const rm = await sb.storage.from('avatars').remove([S.me.family_id + '/' + S.me.id + '.jpg']);
+    if (rm.error) return toast('지우지 못했어요: ' + errMsg(rm.error));
+    const { error } = await sb.rpc('set_avatar', { p_has: false });
+    if (error) return toast(errMsg(error));
+    delete S.avatars[S.me.id];
+    toast('프로필 사진을 지웠어요'); await refresh();
+  },
   async createInvite() {
     const { data, error } = await sb.rpc('create_invite');
     if (error) return toast(errMsg(error));
@@ -430,6 +481,13 @@ async function loadAll() {
   const me = mem.data.find(m => m.id === S.me.id);
   if (!me) return false; // 내보내졌어요
   S.me = me; S.members = mem.data; S.asks = ask.data;
+  // 프로필 사진 주소 (사진이 바뀐 사람만 새로 받아요)
+  const needAva = mem.data.filter(m => m.avatar_path && (!S.avatars[m.id] || S.avatars[m.id].at !== m.avatar_at || S.avatars[m.id].got < Date.now() - 3 * 3600000));
+  for (const id of Object.keys(S.avatars)) if (!mem.data.some(m => m.id === id && m.avatar_path)) delete S.avatars[id];
+  if (needAva.length) {
+    const { data, error } = await sb.storage.from('avatars').createSignedUrls(needAva.map(m => m.avatar_path), 6 * 3600);
+    if (!error) data.forEach((d, i) => { if (d.signedUrl) S.avatars[needAva[i].id] = { url: d.signedUrl, at: needAva[i].avatar_at, got: Date.now() }; });
+  }
   if (ask.data.length) {
     const ans = await sb.from('answers').select('*').in('ask_id', ask.data.map(a => a.id));
     if (ans.error) throw ans.error;
