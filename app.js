@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.3'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+const APP_VERSION = '1.4'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -9,6 +9,7 @@ const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
 const VAPID_PUBLIC = 'BNl452H4EnbdOoXxKi7xdRhGaP-wrj4JDRo3jFo9gkFqOgC5GyURnyKD9N53Zklwkj36EK9g4qciQTA7p1AYCGs';
 
 const MAX_MEMBERS = 8;      // 가족방 최대 인원
+const GREET_MAX = 5;        // 내 안부 목소리("별일 없지?") 최대 5초
 const MAX_REC = 60;         // 음성 1개당 최대 1분 (서버 저장 공간 아끼기)
 const KEEP_DAYS = 90;       // 음성 보관 기간
 const QUOTA_MB = 1024;      // 무료 저장 공간 1GB
@@ -77,6 +78,8 @@ const S = {
   tab: 'home', sheet: null, playing: null, delAsk: null, answeredAt: 0,
   avatars: {},        // 구성원 id → { url, at } (사진 주소)
   listened: new Set(), // 내가 들은 목소리 id
+  greets: {},          // 구성원 id → { url, at } (안부 목소리 주소)
+  greetRec: null,      // 안부 목소리 녹음 중 상태
 };
 const memberOf = id => S.members.find(m => m.id === id);
 const nameOf = id => (memberOf(id) || {}).name || '나간 가족';
@@ -207,6 +210,7 @@ function renderManage() {
   inv.disabled = S.members.length >= MAX_MEMBERS;
   inv.textContent = S.members.length >= MAX_MEMBERS ? '가족 자리가 다 찼어요' : '+ 가족 초대하기';
   $('storePanel').hidden = !isAdmin();
+  renderSound();
   renderStore();
   renderSheet();
 }
@@ -339,6 +343,129 @@ let rec = null;
     }
   });
 })();
+
+// ---------- 안부 목소리 ("별일 없지?"를 묻는 사람 목소리로) ----------
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (_) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+const soundOn = () => lsGet('byeolil-sound', 'on') !== 'off';
+
+function renderSound() {
+  const me = S.me, has = !!me.greet_path, g = S.greetRec;
+  const rec = g ? '<button class="btn btn-voice" data-greet="stop">녹음 중 ' + mmss(g.sec) + ' / ' + mmss(GREET_MAX) + ' · 누르면 끝</button>'
+    : has ? '<div class="row"><button class="btn btn-ghost" data-greet="play">내 목소리 듣기</button><button class="btn btn-ghost" data-greet="rec">다시 녹음</button></div>' +
+            '<button class="btn btn-danger" data-greet="del">내 안부 목소리 지우기</button>'
+          : '<button class="btn btn-voice" data-greet="rec">내 목소리로 "별일 없지?" 녹음하기</button>';
+  $('soundPanel').innerHTML =
+    '<h3>안부 소리</h3>' +
+    '<p class="sub" style="font-size:15px;margin:0">내가 "별일 없지?"를 보내면, 받는 가족의 앱에서 <b>내 목소리</b>로 "별일 없지?"가 들려요. ' +
+      (has ? '지금 내 목소리가 등록되어 있어요.' : '아직 녹음하지 않았다면 "띵동" 소리가 나요.') + '</p>' +
+    (g ? '' : '<p class="sub" style="font-size:14px;margin:0">녹음 버튼을 누르고 "별일 없지?"라고 말한 뒤 다시 누르세요. ' + GREET_MAX + '초까지예요.</p>') +
+    rec +
+    '<div class="toggle-row"><span><b>이 폰에서 안부 소리</b><br><small>가족이 안부를 물으면 앱을 열 때와 앱을 보고 있을 때 소리로 알려 드려요.</small></span>' +
+    '<button class="switch" role="switch" aria-checked="' + soundOn() + '" data-greet="toggle" aria-label="안부 소리 ' + (soundOn() ? '켜짐' : '꺼짐') + '"><i></i><b>' + (soundOn() ? '켜짐' : '꺼짐') + '</b></button></div>';
+}
+
+// "띵동" (안부 목소리가 없을 때)
+function chime() {
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return Promise.reject();
+  const ac = new AC();
+  const tone = (f, t, d) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(0.35, ac.currentTime + t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + d); o.connect(g).connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + d + 0.05); };
+  return (ac.state === 'suspended' ? ac.resume() : Promise.resolve()).then(() => {
+    if (ac.state !== 'running') throw new Error('blocked');
+    tone(988, 0, 0.45); tone(784, 0.32, 0.7); setTimeout(() => ac.close(), 1500);
+  });
+}
+
+const greetAudio = new Audio(); greetAudio.preload = 'none';
+let greetWaiting = null; // 폰이 소리를 막았을 때, 첫 터치에 다시 재생
+function playGreeting(memberId) {
+  const g = S.greets[memberId];
+  const go = () => g && g.url ? (greetAudio.src = g.url, greetAudio.play()) : chime();
+  return go().catch(() => { greetWaiting = memberId; });
+}
+document.addEventListener('pointerdown', () => {
+  if (greetWaiting == null) return;
+  const id = greetWaiting; greetWaiting = null; playGreeting(id);
+}, true);
+
+// 아직 소리를 안 들려준 새 안부가 있으면, 가장 최근에 물은 사람 목소리로 한 번
+function maybeGreet() {
+  if (!S.me) return;
+  let done = []; try { done = JSON.parse(lsGet('byeolil-greeted', '[]')); } catch (_) {}
+  const fresh = pendingAsks().filter(a => !done.includes(a.id));
+  if (!fresh.length) return;
+  lsSet('byeolil-greeted', JSON.stringify(done.concat(fresh.map(a => a.id)).slice(-200)));
+  if (!soundOn() || rec) return;
+  const newest = fresh.sort((x, y) => new Date(y.created_at) - new Date(x.created_at))[0];
+  playGreeting(newest.from_id);
+}
+
+// 내 안부 목소리 녹음
+let gRec = null, gStream = null, gChunks = [], gTimer = null;
+async function greetStart() {
+  if (!window.MediaRecorder || !navigator.mediaDevices) return toast('이 브라우저는 녹음을 지원하지 않아요');
+  try { gStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch (_) { return toast('마이크를 쓸 수 있게 허락해 주세요'); }
+  loadLame().catch(() => {});
+  const mime = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  gChunks = []; gRec = new MediaRecorder(gStream, mime ? { mimeType: mime } : undefined);
+  gRec.ondataavailable = e => { if (e.data && e.data.size) gChunks.push(e.data); };
+  gRec.start(250);
+  const t0 = Date.now(); S.greetRec = { sec: 0 };
+  gTimer = setInterval(() => {
+    S.greetRec.sec = Math.min(GREET_MAX, Math.floor((Date.now() - t0) / 1000));
+    if (Date.now() - t0 >= GREET_MAX * 1000) greetStop(); else renderSound();
+  }, 250);
+  renderSound();
+}
+function greetStop() {
+  if (!gRec) return;
+  clearInterval(gTimer); S.greetRec = null; renderSound();
+  const r = gRec; gRec = null;
+  r.onstop = async () => {
+    gStream.getTracks().forEach(t => t.stop());
+    const rawType = (r.mimeType || 'audio/webm').split(';')[0];
+    const raw = new Blob(gChunks, { type: rawType });
+    if (raw.size < 800) return toast('녹음이 너무 짧아요. 다시 해 주세요');
+    toast('저장하는 중…');
+    let blob = raw, type = rawType;
+    try { const mp3 = await toMp3(raw); if (mp3.blob.size > 500) { blob = mp3.blob; type = 'audio/mpeg'; } } catch (_) {}
+    const ext = type === 'audio/mpeg' ? 'mp3' : type === 'audio/mp4' ? 'm4a' : type === 'audio/ogg' ? 'ogg' : 'webm';
+    const path = S.me.family_id + '/' + S.me.id + '.' + ext;
+    const up = await sb.storage.from('greetings').upload(path, blob, { contentType: type, upsert: true, cacheControl: '60' });
+    if (up.error) return toast('저장하지 못했어요: ' + errMsg(up.error));
+    if (S.me.greet_path && S.me.greet_path !== path) await sb.storage.from('greetings').remove([S.me.greet_path]);
+    const { error } = await sb.rpc('set_greeting', { p_ext: ext });
+    if (error) return toast(errMsg(error));
+    delete S.greets[S.me.id];
+    toast('내 안부 목소리를 저장했어요'); await refresh();
+  };
+  r.stop();
+}
+async function greetDelete() {
+  if (!S.me.greet_path) return;
+  const rm = await sb.storage.from('greetings').remove([S.me.greet_path]);
+  if (rm.error) return toast('지우지 못했어요: ' + errMsg(rm.error));
+  const { error } = await sb.rpc('set_greeting', { p_ext: null });
+  if (error) return toast(errMsg(error));
+  delete S.greets[S.me.id];
+  toast('내 안부 목소리를 지웠어요. 이제 "띵동" 소리가 나요'); await refresh();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-greet]'); if (!b) return;
+  const a = b.dataset.greet;
+  if (a === 'rec') greetStart();
+  else if (a === 'stop') greetStop();
+  else if (a === 'del') greetDelete();
+  else if (a === 'play') { const g = S.greets[S.me.id]; if (g && g.url) { greetAudio.src = g.url; greetAudio.play().catch(() => toast('재생하지 못했어요')); } }
+  else if (a === 'toggle') {
+    lsSet('byeolil-sound', soundOn() ? 'off' : 'on'); renderSound();
+    toast(soundOn() ? '안부 소리를 켰어요' : '안부 소리를 껐어요');
+    if (soundOn()) playGreeting(S.me.id);
+  }
+});
 
 // 사진을 가운데 기준 정사각형으로 잘라 작은 JPG로 (폰 사진도 30KB 안팎)
 async function squareJpeg(file, size) {
@@ -601,6 +728,13 @@ async function loadAll() {
     const { data, error } = await sb.storage.from('avatars').createSignedUrls(needAva.map(m => m.avatar_path), 6 * 3600);
     if (!error) data.forEach((d, i) => { if (d.signedUrl) S.avatars[needAva[i].id] = { url: d.signedUrl, at: needAva[i].avatar_at, got: Date.now() }; });
   }
+  // 안부 목소리 주소
+  const needG = mem.data.filter(m => m.greet_path && (!S.greets[m.id] || S.greets[m.id].at !== m.greet_at || S.greets[m.id].got < Date.now() - 3 * 3600000));
+  for (const id of Object.keys(S.greets)) if (!mem.data.some(m => m.id === id && m.greet_path)) delete S.greets[id];
+  if (needG.length) {
+    const { data, error } = await sb.storage.from('greetings').createSignedUrls(needG.map(m => m.greet_path), 6 * 3600);
+    if (!error) data.forEach((d, i) => { if (d.signedUrl) S.greets[needG[i].id] = { url: d.signedUrl, at: needG[i].greet_at, got: Date.now() }; });
+  }
   if (ask.data.length) {
     const ans = await sb.from('answers').select('*').in('ask_id', ask.data.map(a => a.id));
     if (ans.error) throw ans.error;
@@ -635,6 +769,7 @@ async function refresh() {
       return showOnboard('join');
     }
     render();
+    maybeGreet();
   } catch (e) { console.error(e); }
 }
 const scheduleReload = () => { clearTimeout(reloadTimer); reloadTimer = setTimeout(refresh, 400); };
@@ -718,6 +853,7 @@ async function boot() {
   await loadAll();
   $('onboard').hidden = true; $('tabs').hidden = false;
   render();
+  maybeGreet();
   savePushSub(false); clearShownNotifications();
 
   if (channel) sb.removeChannel(channel);

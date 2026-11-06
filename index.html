@@ -218,6 +218,16 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 .chip.ok{background:var(--ok-soft);color:color-mix(in srgb,var(--ok) 75%,var(--ink))}
 .chip.wait{background:var(--surface);color:var(--muted)}
 .empty{margin:0;color:var(--muted);text-align:center;padding:8px 0}
+.sound h3{margin:0;font-family:var(--display);font-weight:800;font-size:22px}
+.btn-voice{background:var(--voice);color:var(--voice-ink);box-shadow:0 5px 0 var(--voice-deep, color-mix(in srgb,var(--voice) 70%,#000))}
+.toggle-row{display:flex;align-items:center;gap:12px;justify-content:space-between;border-top:1px solid var(--line);padding-top:14px}
+.toggle-row small{color:var(--muted);font-size:14px;line-height:1.4}
+.switch{flex:none;display:flex;align-items:center;gap:8px;border:0;background:none;font:inherit;cursor:pointer;min-height:44px;padding:0;color:var(--ink)}
+.switch i{position:relative;width:56px;height:32px;border-radius:99px;background:var(--line);transition:background .2s}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch[aria-checked="true"] i{background:var(--ok)}
+.switch[aria-checked="true"] i::after{transform:translateX(24px)}
+.switch b{font-size:15px;min-width:2.6em;text-align:left}
 .notify{gap:12px;background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
 .notify p{margin:0;font-size:17px}
 .new{display:inline-block;font-size:12px;font-weight:800;background:var(--voice);color:var(--voice-ink);border-radius:99px;padding:1px 8px;vertical-align:2px;margin-left:4px}
@@ -312,6 +322,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
       <div id="sheet"></div>
       <button class="btn btn-sun" id="inviteBtn">+ 가족 초대하기</button>
     </div>
+    <div class="panel sound" id="soundPanel"></div>
     <div class="panel" id="storePanel"><div class="store" id="store"></div></div>
   </section>
 
