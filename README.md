@@ -8,4 +8,4 @@
 - 안부 마감: 한국 오전 11시, 놓치면 가족 전원에게 푸시 알림
 - 음성은 90일 뒤 자동 삭제
 
-현재 단계: 화면 시안(index.html). GitHub Pages로 배포, 폰 홈 화면에 앱처럼 추가 가능(manifest.webmanifest, icons/). 다음 단계: Supabase 연결, 실제 녹음, 푸시 알림.
+현재 단계: 화면 시안(index.html), 소개 페이지(intro.html). GitHub Pages로 배포, 폰 홈 화면에 앱처럼 추가 가능(manifest.webmanifest, icons/). 다음 단계: Supabase 연결, 실제 녹음, 푸시 알림.
