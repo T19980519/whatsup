@@ -1,10 +1,12 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.2'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
+const APP_VERSION = '1.3'; // 버전은 여기 한 곳만 바꾸면 위·아래 표시가 같이 바뀌어요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
+// 알림용 공개 키 (짝이 되는 비밀 키는 Supabase Edge Function 비밀 값에만 있어요)
+const VAPID_PUBLIC = 'BNl452H4EnbdOoXxKi7xdRhGaP-wrj4JDRo3jFo9gkFqOgC5GyURnyKD9N53Zklwkj36EK9g4qciQTA7p1AYCGs';
 
 const MAX_MEMBERS = 8;      // 가족방 최대 인원
 const MAX_REC = 60;         // 음성 1개당 최대 1분 (서버 저장 공간 아끼기)
@@ -74,6 +76,7 @@ const S = {
   to: null,            // 받는 사람: 구성원 id 또는 'all'
   tab: 'home', sheet: null, playing: null, delAsk: null, answeredAt: 0,
   avatars: {},        // 구성원 id → { url, at } (사진 주소)
+  listened: new Set(), // 내가 들은 목소리 id
 };
 const memberOf = id => S.members.find(m => m.id === id);
 const nameOf = id => (memberOf(id) || {}).name || '나간 가족';
@@ -86,6 +89,7 @@ const avaHtml = (m, cls = '') => {
     (a && a.url ? '<img src="' + esc(a.url) + '" alt="">' : esc((m && m.name || '?').slice(0, 1))) + '</span>';
 };
 const toName = to => to === 'all' || to == null ? '가족 모두' : nameOf(to);
+const unheardVoices = () => S.voices.filter(v => v.sender_id !== S.me.id && !S.listened.has(v.id));
 const answeredBy = askId => S.answers.filter(a => a.ask_id === askId);
 const pendingAsks = () => S.asks.filter(a => a.from_id !== S.me.id && (a.to_id == null || a.to_id === S.me.id) &&
   Date.now() - new Date(a.created_at) < 7 * 86400000 && !S.answers.some(x => x.ask_id === a.id && x.from_id === S.me.id));
@@ -106,6 +110,8 @@ function render() {
 function renderHome() {
   const now = new Date();
   // 받은 안부 → 큰 해님 버튼으로 답하기
+  renderNotify();
+  updateBadge();
   const pend = pendingAsks();
   const justAnswered = Date.now() - S.answeredAt < 60000;
   $('inbox').hidden = !pend.length && !justAnswered;
@@ -175,7 +181,7 @@ function voiceItem(v, at) {
   const playing = S.playing === v.id;
   return '<div class="msg' + (mine ? ' mine' : '') + '">' +
     '<button class="play" data-play="' + v.id + '" aria-pressed="' + playing + '" aria-label="' + title + ' ' + (playing ? '멈추기' : '듣기') + '">' + (playing ? PAUSE : PLAY) + '</button>' +
-    '<div><strong>' + title + '</strong><em class="num">' + ago(at) + ' · ' + mmss(v.duration_sec) + '<span class="keep">· ' + left + '일 뒤 삭제</span></em><div class="bars">' + bars + '</div></div>' +
+    '<div><strong>' + title + (!mine && !S.listened.has(v.id) ? ' <span class="new">새 목소리</span>' : '') + '</strong><em class="num">' + ago(at) + ' · ' + mmss(v.duration_sec) + '<span class="keep">· ' + left + '일 뒤 삭제</span></em><div class="bars">' + bars + '</div></div>' +
     (canDel ? '<button class="del" data-del="' + v.id + '" aria-label="' + title + ' 지우기">' + TRASH + '</button>' : '') +
     (S.delAsk === v.id ? '<div class="del-ask"><span>이 목소리를 지울까요? 모두의 화면에서 사라지고 되돌릴 수 없어요.</span>' +
       '<button class="btn btn-danger-solid" data-del-yes="' + v.id + '">지우기</button><button class="btn btn-ghost" data-del-no>취소</button></div>' : '') +
@@ -460,6 +466,10 @@ const api = {
     if (S.playing === id) { audio.pause(); S.playing = null; return renderHome(); }
     if (!v.url) { toast('목소리를 불러오는 중이에요. 잠시 후 다시 눌러 주세요'); return refresh(); }
     audio.src = v.url;
+    if (v.sender_id !== S.me.id && !S.listened.has(id)) {
+      S.listened.add(id);
+      sb.rpc('mark_listened', { p_voice: id }).then(({ error }) => { if (error) console.warn(error); });
+    }
     audio.play().then(() => { S.playing = id; renderHome(); })
       .catch(() => toast('재생하지 못했어요. 이 폰에서 지원하지 않는 형식일 수 있어요'));
   },
@@ -515,6 +525,63 @@ const api = {
   },
 };
 
+// ---------- 알림 (푸시) + 아이콘 숫자 ----------
+const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+let swReg = null;
+const b64ToBytes = b64 => { const p = '='.repeat((4 - b64.length % 4) % 4); const r = atob((b64 + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, c => c.charCodeAt(0)); };
+
+function renderNotify() {
+  const box = $('notifyCard');
+  let html = '';
+  if (isIOS && !standalone) {
+    html = '<p>아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요. 공유 버튼 → 홈 화면에 추가 후, 해님 아이콘으로 열어 주세요.</p>';
+  } else if (!pushSupported()) {
+    html = '';
+  } else if (Notification.permission === 'default') {
+    html = '<p>가족이 안부를 묻거나 목소리를 보내면 <b>알림</b>으로 알려 드릴까요?</p><button class="btn btn-sun" id="notifyBtn">알림 켜기</button>';
+  } else if (Notification.permission === 'denied') {
+    html = '<p>알림이 꺼져 있어요. ' + (isIOS ? '폰 <b>설정 → 알림 → 별일없지</b>에서 켜 주세요.' : '폰 <b>설정 → 애플리케이션(앱) → 별일없지 → 알림</b>에서 켜 주세요.') + '</p>';
+  }
+  box.innerHTML = html;
+  box.hidden = !html;
+}
+
+async function savePushSub(ask) {
+  if (!pushSupported() || !swReg) return false;
+  if (ask) {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { renderNotify(); return false; }
+  } else if (Notification.permission !== 'granted') return false;
+  try {
+    let sub = await swReg.pushManager.getSubscription();
+    if (!sub) sub = await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) });
+    const j = sub.toJSON();
+    const { error } = await sb.rpc('save_push_sub', { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth });
+    if (error) throw error;
+    return true;
+  } catch (e) { console.error(e); if (ask) toast('알림을 켜지 못했어요. 잠시 후 다시 해 주세요'); return false; }
+}
+
+// 아이콘 숫자 = 아직 답 안 한 안부 + 아직 안 들은 목소리
+function updateBadge() {
+  if (!S.me || !('setAppBadge' in navigator)) return;
+  const n = pendingAsks().length + unheardVoices().length;
+  (n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(() => {});
+}
+// 앱을 열면 이미 뜬 알림은 정리
+function clearShownNotifications() {
+  if (swReg && swReg.getNotifications) swReg.getNotifications().then(ns => ns.forEach(n => n.close())).catch(() => {});
+}
+
+document.addEventListener('click', async e => {
+  if (!e.target.closest('#notifyBtn')) return;
+  const b = e.target.closest('#notifyBtn'); b.disabled = true;
+  const ok = await savePushSub(true);
+  b.disabled = false;
+  if (ok) toast('알림을 켰어요. 가족 소식이 오면 알려 드릴게요');
+  renderNotify();
+});
+
 async function loadAll() {
   const vSince = new Date(Date.now() - KEEP_DAYS * 86400000).toISOString();
   const aSince = new Date(Date.now() - ASK_DAYS * 86400000).toISOString();
@@ -549,6 +616,8 @@ async function loadAll() {
     const { data, error } = await sb.storage.from('voices').createSignedUrls(need.map(v => v.path), 6 * 3600);
     if (!error) data.forEach(d => { if (d.signedUrl) urls[d.path] = d.signedUrl; });
   }
+  const lis = await sb.from('voice_listens').select('voice_id');
+  if (!lis.error) S.listened = new Set(lis.data.map(x => x.voice_id));
   S.voices = voi.data.map(v => {
     const o = fresh(v);
     return o ? { ...v, url: o.url, urlAt: o.urlAt } : { ...v, url: urls[v.path] || null, urlAt: urls[v.path] ? Date.now() : 0 };
@@ -649,6 +718,7 @@ async function boot() {
   await loadAll();
   $('onboard').hidden = true; $('tabs').hidden = false;
   render();
+  savePushSub(false); clearShownNotifications();
 
   if (channel) sb.removeChannel(channel);
   const f = 'family_id=eq.' + row.family_id;
@@ -659,10 +729,13 @@ async function boot() {
 }
 
 async function start() {
+  if ('serviceWorker' in navigator) {
+    try { swReg = await navigator.serviceWorker.register('sw.js'); } catch (e) { console.warn('서비스 워커 등록 실패', e); }
+  }
   const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
   sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
   await boot();
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) refresh(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) { refresh(); clearShownNotifications(); } });
   setInterval(() => { if (S.me && !document.hidden) refresh(); }, 60000);
   setInterval(() => { if (S.me && !rec) renderHome(); }, 30000); // 시계·"몇 분 전" 갱신
 }

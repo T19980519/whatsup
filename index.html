@@ -218,6 +218,9 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 .chip.ok{background:var(--ok-soft);color:color-mix(in srgb,var(--ok) 75%,var(--ink))}
 .chip.wait{background:var(--surface);color:var(--muted)}
 .empty{margin:0;color:var(--muted);text-align:center;padding:8px 0}
+.notify{gap:12px;background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.notify p{margin:0;font-size:17px}
+.new{display:inline-block;font-size:12px;font-weight:800;background:var(--voice);color:var(--voice-ink);border-radius:99px;padding:1px 8px;vertical-align:2px;margin-left:4px}
 .ava{overflow:hidden}
 .ava img{width:100%;height:100%;object-fit:cover;display:block}
 .ava.ava-lg{width:88px;height:88px;font-size:36px}
@@ -279,6 +282,7 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 
   <!-- 홈 -->
   <section class="screen" id="home" hidden>
+    <div class="panel notify" id="notifyCard" hidden></div>
     <div class="panel inbox" id="inbox" hidden>
       <p class="greet" id="inboxText"></p>
       <button class="big" id="answerBtn"></button>
