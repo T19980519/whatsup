@@ -11,3 +11,9 @@
 - 음성은 90일 뒤 자동 삭제
 
 현재 단계: 화면 시안(index.html), 소개 페이지(intro.html). GitHub Pages로 배포, 폰 홈 화면에 앱처럼 추가 가능(manifest.webmanifest, icons/). 다음 단계: Supabase 연결, 실제 녹음, 푸시 알림.
+
+## 서버 연결 (Supabase)
+1. Supabase 프로젝트의 SQL Editor에서 `supabase/schema.sql` 전체를 실행
+2. Authentication → Sign In / Providers → Allow anonymous sign-ins 켜기
+3. `index.html` 위쪽의 `SUPABASE_URL`, `SUPABASE_KEY`(publishable key)를 채우기. 비어 있으면 시연 모드로 동작
+4. 서버 코드는 `live.js`. 가족방·초대 코드·안부 기록·음성(비공개 저장소 voices)은 보안 규칙(RLS)으로 같은 가족만 볼 수 있음
