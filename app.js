@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.5'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
+const APP_VERSION = '1.6'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -86,9 +86,14 @@ const nameOf = id => (memberOf(id) || {}).name || '나간 가족';
 const others = () => S.members.filter(m => m.id !== S.me.id);
 const isAdmin = () => S.me && S.me.role === 'admin';
 // 프로필 사진이 있으면 사진, 없으면 이름 첫 글자
+// 사람마다 파스텔 색 (가족방에 들어온 순서대로, 같은 사람은 어디서나 같은 색)
+const PASTEL = [['#FFE9A8', '#5A4100'], ['#D8F2E4', '#1F5E3F'], ['#FFDCE5', '#8A1F3D'], ['#E4DCFF', '#43308A'],
+  ['#D6ECFF', '#24476E'], ['#FFE3CC', '#7A3E10'], ['#F3E0FF', '#5E2A7A'], ['#DDF5F2', '#1F5A55']];
 const avaHtml = (m, cls = '') => {
   const a = m && S.avatars[m.id];
-  return '<span class="ava' + (cls ? ' ' + cls : '') + '">' +
+  const i = m ? S.members.findIndex(x => x.id === m.id) : -1;
+  const c = PASTEL[(i < 0 ? 0 : i) % PASTEL.length];
+  return '<span class="ava' + (cls ? ' ' + cls : '') + '" style="background:' + c[0] + ';color:' + c[1] + '">' +
     (a && a.url ? '<img src="' + esc(a.url) + '" alt="">' : esc((m && m.name || '?').slice(0, 1))) + '</span>';
 };
 const toName = to => to === 'all' || to == null ? '가족 모두' : nameOf(to);
@@ -155,15 +160,16 @@ function renderHome() {
   updateBadge();
   const pend = pendingAsks();
   const justAnswered = Date.now() - S.answeredAt < 60000;
-  $('inbox').hidden = !pend.length && !justAnswered;
+  // 큰 해님: 받은 안부가 있으면 "별일 없어요" 답하기, 없으면 "별일 없지?" 물어보기 (G2)
   const btn = $('answerBtn');
+  btn.disabled = false;
   if (pend.length) {
     const names = [...new Set(pend.map(a => nameOf(a.from_id)))];
-    $('inboxText').textContent = subj(names.join(', ')) + ' 안부를 물어요';
+    $('inboxText').innerHTML = esc(subj(names.join(', '))) + ' 물었어요<small>“별일 없지?” · ' + timeKo(tzOf(S.me), new Date(pend[0].created_at)) + '</small>';
     btn.classList.remove('done');
     btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>눌러서 답하기</small>';
   } else if (justAnswered) {
-    $('inboxText').textContent = '안부를 전했어요';
+    $('inboxText').innerHTML = '안부를 전했어요';
     btn.classList.add('done');
     btn.innerHTML = face('happy') + '<b>답했어요!</b><small>' + timeKo(tzOf(S.me), new Date(S.answeredAt)) + '</small>';
   }
@@ -177,7 +183,14 @@ function renderHome() {
       list.map(m => '<button class="person" data-to="' + m.id + '" aria-pressed="' + (S.to === m.id) + '">' +
         avaHtml(m) + '<strong>' + esc(m.name) + '</strong>' +
         '<small>' + esc(placeOf(m)) + '<br>' + timeKo(tzOf(m), now) + '</small></button>').join('');
-  $('toLine').innerHTML = S.to ? '받는 사람: <b>' + esc(toName(S.to)) + '</b>' : '';
+  $('toLine').innerHTML = S.to ? '받는 사람: <b>' + esc(toName(S.to)) + '</b> · 목소리는 1분까지' : '';
+  if (!pend.length && !justAnswered) {
+    $('inboxText').innerHTML = S.to ? '오늘 안부를 물어볼까요?<small>' + esc(toName(S.to)) + '에게 보내요</small>'
+      : '가족을 초대하면<br>안부를 물을 수 있어요';
+    btn.classList.remove('done');
+    btn.innerHTML = face('wait') + '<b>별일 없지?</b><small>눌러서 물어보기</small>';
+    btn.disabled = !S.to;
+  }
   $('askBtn').disabled = !S.to;
   if (!rec) $('micBtn').disabled = !S.to;
 
@@ -347,7 +360,10 @@ $('sheet').addEventListener('click', e => {
   else if (act === 'remove') api.removeMember(S.sheet.id);
 });
 $('inviteBtn').addEventListener('click', () => api.createInvite());
-$('answerBtn').addEventListener('click', () => { if (pendingAsks().length) api.answer(); });
+$('answerBtn').addEventListener('click', () => {
+  if (pendingAsks().length) api.answer();
+  else if (Date.now() - S.answeredAt >= 60000) api.ask();
+});
 $('askBtn').addEventListener('click', () => api.ask());
 $('feed').addEventListener('click', e => {
   const d = e.target.closest('[data-del]'); if (d) { S.delAsk = S.delAsk === d.dataset.del ? null : d.dataset.del; return renderHome(); }
@@ -570,9 +586,9 @@ let recStream = null, chunks = [], recMime = '';
 const api = {
   async ask() {
     if (!S.to) return toast('받는 사람을 먼저 골라 주세요');
-    const btn = $('askBtn'); btn.disabled = true;
+    const btn = $('askBtn'), sun = $('answerBtn'); btn.disabled = true; sun.disabled = true;
     const { error } = await sb.rpc('ask_family', { p_to: S.to === 'all' ? null : S.to });
-    btn.disabled = false;
+    btn.disabled = false; sun.disabled = false;
     if (error) return toast(errMsg(error));
     toast(toName(S.to) + '에게 "별일 없지?"를 보냈어요');
     refresh();
