@@ -172,7 +172,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 .del{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
 .del svg{width:22px;height:22px}
 .del:hover{background:var(--surface)}
-.msg .del-ask{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border-radius:14px;padding:10px 12px;font-size:15px}
+.item{flex-wrap:wrap}
+.item .del-ask,.msg .del-ask{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border-radius:14px;padding:10px 12px;font-size:15px}
 .del-ask span{flex:1 1 100%}
 .del-ask .btn{flex:1 1 0;padding:8px 16px;min-height:44px}
 .play[aria-pressed="true"]{outline:3px solid var(--sun-deep)}

@@ -12,7 +12,7 @@
 - 음성은 90일 보관: 90일이 지나면 매일 새벽 자동으로 파일과 기록을 모두 지움 (미리 알림 없음)
 
 ## 서버 연결 (Supabase)
-SQL Editor에서 순서대로 실행: `supabase/schema.sql` → `supabase/03_v1_family.sql` → `supabase/04_avatars.sql` → `supabase/05_voice_1min_mp3.sql` → `supabase/06_push.sql` → `supabase/07_greetings.sql` → `supabase/08_cleanup.sql` (02는 schema.sql에 포함, 08은 아래 cleanup 함수를 먼저 올린 뒤 실행).
+SQL Editor에서 순서대로 실행: `supabase/schema.sql` → `supabase/03_v1_family.sql` → `supabase/04_avatars.sql` → `supabase/05_voice_1min_mp3.sql` → `supabase/06_push.sql` → `supabase/07_greetings.sql` → `supabase/08_cleanup.sql` → `supabase/09_delete_ask.sql` (02는 schema.sql에 포함, 08은 아래 cleanup 함수를 먼저 올린 뒤 실행).
 Authentication → Allow anonymous sign-ins 켜기. 연결 정보는 `app.js` 위쪽의 `SUPABASE_URL`, `SUPABASE_KEY`(publishable key).
 
 ### 알림 함수 (Edge Function `push`)
