@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.6'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
+const APP_VERSION = '1.7'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -160,9 +160,9 @@ function renderHome() {
   updateBadge();
   const pend = pendingAsks();
   const justAnswered = Date.now() - S.answeredAt < 60000;
-  // 큰 해님: 받은 안부가 있으면 "별일 없어요" 답하기, 없으면 "별일 없지?" 물어보기 (G2)
+  // 받은 안부가 있을 때만 큰 해님으로 "별일 없어요" 답하기 (11/11 테스트 후 묻기 기능은 위 두 버튼으로만)
   const btn = $('answerBtn');
-  btn.disabled = false;
+  $('inbox').hidden = !pend.length && !justAnswered;
   if (pend.length) {
     const names = [...new Set(pend.map(a => nameOf(a.from_id)))];
     $('inboxText').innerHTML = esc(subj(names.join(', '))) + ' 물었어요<small>“별일 없지?” · ' + timeKo(tzOf(S.me), new Date(pend[0].created_at)) + '</small>';
@@ -184,13 +184,7 @@ function renderHome() {
         avaHtml(m) + '<strong>' + esc(m.name) + '</strong>' +
         '<small>' + esc(placeOf(m)) + '<br>' + timeKo(tzOf(m), now) + '</small></button>').join('');
   $('toLine').innerHTML = S.to ? '받는 사람: <b>' + esc(toName(S.to)) + '</b> · 목소리는 1분까지' : '';
-  if (!pend.length && !justAnswered) {
-    $('inboxText').innerHTML = S.to ? '오늘 안부를 물어볼까요?<small>' + esc(toName(S.to)) + '에게 보내요</small>'
-      : '가족을 초대하면<br>안부를 물을 수 있어요';
-    btn.classList.remove('done');
-    btn.innerHTML = face('wait') + '<b>별일 없지?</b><small>눌러서 물어보기</small>';
-    btn.disabled = !S.to;
-  }
+
   $('askBtn').disabled = !S.to;
   if (!rec) $('micBtn').disabled = !S.to;
 
@@ -227,8 +221,8 @@ function askItem(a, at) {
 
 function voiceItem(v, at) {
   const mine = v.sender_id === S.me.id;
-  const title = mine ? esc(toName(v.to_id)) + '에게 보낸 목소리'
-    : esc(nameOf(v.sender_id)) + '의 목소리' + (v.to_id == null ? ' · 가족 모두에게' : '');
+  const title = mine ? esc(toName(v.to_id)) + '에게 보낸 나의 음성 안부'
+    : esc(nameOf(v.sender_id)) + '한테 받은 음성 안부';
   const bars = Array.from({ length: 20 }, (_, i) => '<i style="height:' + (5 + Math.abs(Math.sin(i * 1.7 + v.duration_sec)) * 15).toFixed(0) + 'px"></i>').join('');
   const left = KEEP_DAYS - Math.floor((Date.now() - at) / 86400000);
   const canDel = mine || isAdmin();
@@ -360,10 +354,7 @@ $('sheet').addEventListener('click', e => {
   else if (act === 'remove') api.removeMember(S.sheet.id);
 });
 $('inviteBtn').addEventListener('click', () => api.createInvite());
-$('answerBtn').addEventListener('click', () => {
-  if (pendingAsks().length) api.answer();
-  else if (Date.now() - S.answeredAt >= 60000) api.ask();
-});
+$('answerBtn').addEventListener('click', () => { if (pendingAsks().length) api.answer(); });
 $('askBtn').addEventListener('click', () => api.ask());
 $('feed').addEventListener('click', e => {
   const d = e.target.closest('[data-del]'); if (d) { S.delAsk = S.delAsk === d.dataset.del ? null : d.dataset.del; return renderHome(); }
