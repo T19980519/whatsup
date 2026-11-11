@@ -197,12 +197,15 @@ function renderHome() {
     : '<p class="empty">아직 소식이 없어요. 위에서 가족에게 안부를 물어보세요.</p>';
 }
 
+// 소식 제목의 이름: <이름> 굵게 (안부·음성 공통)
+const whoTag = n => '<span class="who">&lt;' + esc(n) + '&gt;</span>';
+
 function askItem(a, at) {
   const mine = a.from_id === S.me.id;
   const ans = answeredBy(a.id);
   let title, chip;
   if (mine) {
-    title = esc(toName(a.to_id)) + '에게 안부를 물었어요';
+    title = whoTag(toName(a.to_id)) + '에게 안부를 물었어요';
     if (a.to_id == null) {
       const total = S.members.filter(m => m.id !== a.from_id).length;
       chip = ans.length ? '<span class="chip ok">✓ 별일 없대요 · ' + esc(ans.map(x => nameOf(x.from_id)).join(', ')) + ' (' + ans.length + '/' + total + '명)</span>'
@@ -212,7 +215,8 @@ function askItem(a, at) {
         : '<span class="chip wait">아직 답이 없어요</span>';
     }
   } else {
-    title = esc(subj(nameOf(a.from_id))) + ' ' + (a.to_id == null ? '가족 모두에게 ' : '') + '안부를 물었어요';
+    const n = nameOf(a.from_id);
+    title = whoTag(n) + esc(subj(n).slice(n.length)) + ' ' + (a.to_id == null ? '가족 모두에게 ' : '') + '안부를 물었어요';
     chip = ans.some(x => x.from_id === S.me.id) ? '<span class="chip ok">✓ 답했어요</span>' : '<span class="chip wait">답을 기다려요</span>';
   }
   const icon = mine ? '<span class="ic">' + SUN + '</span>' : avaHtml(memberOf(a.from_id), 'ic');
@@ -225,7 +229,7 @@ function voiceItem(v, at) {
   const who = esc(mine ? toName(v.to_id) : nameOf(v.sender_id));
   const rest = mine ? '에게 보낸 나의 음성 안부' : '한테 받은 음성 안부';
   const title = who + rest;
-  const shown = '<span class="who">&lt;' + who + '&gt;</span>' + rest;
+  const shown = whoTag(mine ? toName(v.to_id) : nameOf(v.sender_id)) + rest;
   const bars = Array.from({ length: 20 }, (_, i) => '<i style="height:' + (5 + Math.abs(Math.sin(i * 1.7 + v.duration_sec)) * 15).toFixed(0) + 'px"></i>').join('');
   const left = KEEP_DAYS - Math.floor((Date.now() - at) / 86400000);
   const canDel = mine || isAdmin();
