@@ -167,7 +167,7 @@ function renderHome() {
     const names = [...new Set(pend.map(a => nameOf(a.from_id)))];
     $('inboxText').innerHTML = esc(subj(names.join(', '))) + ' 물었어요<small>“별일 없지?” · ' + timeKo(tzOf(S.me), new Date(pend[0].created_at)) + '</small>';
     btn.classList.remove('done'); btn.classList.add('wiggle');
-    btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>터치로 대답하기</small>';
+    btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>터치로 답하기</small>';
   } else if (justAnswered) {
     $('inboxText').innerHTML = '안부를 전했어요';
     btn.classList.add('done'); btn.classList.remove('wiggle');
