@@ -198,7 +198,7 @@ function renderHome() {
 }
 
 // 소식 제목의 이름: <이름> 굵게 (안부·음성 공통)
-const whoTag = n => '<span class="who">&lt;' + esc(n) + '&gt;</span>';
+const whoTag = n => '<span class="who">[' + esc(n) + ']</span>';
 
 function askItem(a, at) {
   const mine = a.from_id === S.me.id;
