@@ -316,6 +316,10 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 
   <!-- 홈 -->
   <section class="screen" id="home" hidden>
+    <div class="panel inbox" id="inbox" hidden>
+      <p class="greet" id="inboxText"></p>
+      <button class="big" id="answerBtn"></button>
+    </div>
     <div class="panel pick">
       <h3 style="margin:0;font-family:var(--display);font-weight:800;font-size:21px;text-align:center">누구의 안부를 물어볼까요?</h3>
       <div class="people" id="people"></div>
@@ -324,10 +328,6 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
         <button class="mic" id="micBtn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 18v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span>간단한 음성으로 물어보기</span></button>
       </div>
       <p class="to-line" id="toLine"></p>
-    </div>
-    <div class="panel inbox" id="inbox" hidden>
-      <p class="greet" id="inboxText"></p>
-      <button class="big" id="answerBtn"></button>
     </div>
     <div class="panel notify" id="notifyCard" hidden></div>
     <div class="panel msgs">
