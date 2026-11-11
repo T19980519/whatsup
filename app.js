@@ -221,15 +221,18 @@ function askItem(a, at) {
 
 function voiceItem(v, at) {
   const mine = v.sender_id === S.me.id;
-  const title = mine ? esc(toName(v.to_id)) + '에게 보낸 나의 음성 안부'
-    : esc(nameOf(v.sender_id)) + '한테 받은 음성 안부';
+  // 화면에는 이름을 <이름>으로 굵게, 읽어주기(aria)용 title은 꺾쇠 없이
+  const who = esc(mine ? toName(v.to_id) : nameOf(v.sender_id));
+  const rest = mine ? '에게 보낸 나의 음성 안부' : '한테 받은 음성 안부';
+  const title = who + rest;
+  const shown = '<span class="who">&lt;' + who + '&gt;</span>' + rest;
   const bars = Array.from({ length: 20 }, (_, i) => '<i style="height:' + (5 + Math.abs(Math.sin(i * 1.7 + v.duration_sec)) * 15).toFixed(0) + 'px"></i>').join('');
   const left = KEEP_DAYS - Math.floor((Date.now() - at) / 86400000);
   const canDel = mine || isAdmin();
   const playing = S.playing === v.id;
   return '<div class="msg' + (mine ? ' mine' : '') + '">' +
     '<button class="play" data-play="' + v.id + '" aria-pressed="' + playing + '" aria-label="' + title + ' ' + (playing ? '멈추기' : '듣기') + '">' + (playing ? PAUSE : PLAY) + '</button>' +
-    '<div><strong>' + title + (!mine && !S.listened.has(v.id) ? ' <span class="new">새 목소리</span>' : '') + '</strong><em class="num">' + ago(at) + ' · ' + mmss(v.duration_sec) + '<span class="keep">· ' + left + '일 뒤 삭제</span></em><div class="bars">' + bars + '</div></div>' +
+    '<div><strong>' + shown + (!mine && !S.listened.has(v.id) ? ' <span class="new">새 목소리</span>' : '') + '</strong><em class="num">' + ago(at) + ' · ' + mmss(v.duration_sec) + '<span class="keep">· ' + left + '일 뒤 삭제</span></em><div class="bars">' + bars + '</div></div>' +
     (canDel ? '<button class="del" data-del="' + v.id + '" aria-label="' + title + ' 지우기">' + TRASH + '</button>' : '') +
     (S.delAsk === v.id ? '<div class="del-ask"><span>이 목소리를 지울까요? 모두의 화면에서 사라지고 되돌릴 수 없어요.</span>' +
       '<button class="btn btn-danger-solid" data-del-yes="' + v.id + '">지우기</button><button class="btn btn-ghost" data-del-no>취소</button></div>' : '') +
