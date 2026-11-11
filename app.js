@@ -205,7 +205,7 @@ function askItem(a, at) {
   const ans = answeredBy(a.id);
   let title, chip;
   if (mine) {
-    title = whoTag(toName(a.to_id)) + '에게 안부를 물었어요';
+    title = whoTag(toName(a.to_id)) + '에게 안부를 물었어요.';
     if (a.to_id == null) {
       const total = S.members.filter(m => m.id !== a.from_id).length;
       chip = ans.length ? '<span class="chip ok">✓ 별일 없대요 · ' + esc(ans.map(x => nameOf(x.from_id)).join(', ')) + ' (' + ans.length + '/' + total + '명)</span>'
@@ -216,7 +216,7 @@ function askItem(a, at) {
     }
   } else {
     const n = nameOf(a.from_id);
-    title = whoTag(n) + esc(subj(n).slice(n.length)) + ' ' + (a.to_id == null ? '가족 모두에게 ' : '') + '안부를 물었어요';
+    title = whoTag(n) + esc(subj(n).slice(n.length)) + ' ' + (a.to_id == null ? '가족 모두에게 ' : '') + '안부를 물었어요.';
     chip = ans.some(x => x.from_id === S.me.id) ? '<span class="chip ok">✓ 답했어요</span>' : '<span class="chip wait">답을 기다려요</span>';
   }
   const icon = mine ? '<span class="ic">' + SUN + '</span>' : avaHtml(memberOf(a.from_id), 'ic');
