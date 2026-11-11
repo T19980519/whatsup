@@ -4,107 +4,117 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>별일없지? — 멀리 사는 가족, 버튼 한 번으로 안부</title>
-<meta name="description" content="'별일 없지?' 하고 물으면 해님 버튼 한 번으로 '별일 없어요'. 글자 입력 없이 버튼과 목소리로 안부를 나누고, 알림으로 바로 알아요. 어르신도 쉽게. 무료 · 가입 없음.">
+<meta name="description" content="가족을 고르고 버튼 한 번으로 '별일 없지?'. 받은 가족은 움직이는 해님을 터치해 '별일 없어요'. 글자 입력 없이, 어르신도 쉽게. 무료 · 가입 없음 · 광고 없음.">
 <meta property="og:title" content="별일없지? — 멀리 사는 가족, 버튼 한 번으로 안부">
-<meta property="og:description" content="글자 입력 없이 해님 버튼과 목소리로 안부를 묻고 답해요. 연로하신 부모님도 쉽게 쓰세요. 무료 · 가입 없음 · 광고 없음">
+<meta property="og:description" content="방장이 가족방을 만들고, 가족은 초대 코드로 들어와요. 글자 입력 없이 버튼과 목소리로 안부를 나눠요. 무료 · 가입 없음 · 광고 없음">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://t19980519.github.io/whatsup/intro.html">
 <meta property="og:image" content="https://t19980519.github.io/whatsup/icons/icon-512.png">
-<meta name="theme-color" content="#2F6FB8">
+<meta name="theme-color" content="#DCEEFF">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800;900&display=swap">
 <style>
-/* 소개 페이지: 폰 한 화면 폭. 하늘색 첫 화면(대화 예시) → 왜 만들었나 → 사용법 → 어르신이 쉬운 이유 → 어르신용 큰 글씨 안내 → 설치(아이폰/갤럭시 탭) */
+/* 소개 페이지 (v1.11 기준): 앱과 같은 파스텔 하늘. 첫 화면 → 시작 순서(방장 먼저!) → 쓰는 법 → 어르신이 쉬운 이유 → 어르신용 안내 → 설명서 링크 */
 :root{
-  --bg:#EEF6FD; --card:#FFFFFF; --ink:#22263A; --muted:#5B6178; --line:#DCE6F2; --field:#F3F8FD;
-  --sky:#3F8FD6; --sky-2:#2A62A8; --sky-ink:#FFFFFF;
-  --sun:#FFC83D; --sun-deep:#E8A200; --sun-ink:#3D2800; --ok:#1F9D62; --ok-soft:#DDF5E8;
-  --voice:#F2577E; --voice-soft:#FFE6EC;
+  --sky:#DCEEFF; --card:#FFFFFF; --ink:#2F3654; --muted:#5A6385; --line:#DCE6F5; --field:#F4F6FA;
+  --sun:#FFD66B; --sun-ink:#5A4100; --sun-soft:#FFF4CF;
+  --ask:#4E6BB8; --mic-bg:#FFD6E0; --mic-ink:#8A1F3D;
+  --warn:#C2410C; --warn-soft:#FFEAD9;
   --sans:"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
-  --shadow:0 1px 1px rgba(30,50,90,.04),0 10px 30px -12px rgba(30,50,90,.2);
+  color-scheme:light; /* 앱처럼 어두운 화면 모드에서도 파스텔 유지 */
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#10162B; --card:#1A2140; --ink:#EEF1FF; --muted:#A8AFCB; --line:#2B3560; --field:#202951;
-  --sky:#2D5FA0; --sky-2:#1B3E73; --ok:#5BD99A; --ok-soft:#1C3B36; --voice-soft:#43284A; --shadow:none; color-scheme:dark; } }
-:root[data-theme="dark"]{
-  --bg:#10162B; --card:#1A2140; --ink:#EEF1FF; --muted:#A8AFCB; --line:#2B3560; --field:#202951;
-  --sky:#2D5FA0; --sky-2:#1B3E73; --ok:#5BD99A; --ok-soft:#1C3B36; --voice-soft:#43284A; --shadow:none; color-scheme:dark; }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink)}
-body{font-family:var(--sans);font-size:17px;font-weight:500;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+html,body{margin:0;background:var(--sky);color:var(--ink)}
+body{font-family:var(--sans);font-size:17px;font-weight:500;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
 button{font:inherit;color:inherit;cursor:pointer}
 a{color:inherit}
-button:focus-visible,a:focus-visible{outline:3px solid var(--sun-deep);outline-offset:2px}
-.wrap{max-width:620px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-.num{font-variant-numeric:tabular-nums}
+button:focus-visible,a:focus-visible{outline:3px solid var(--ask);outline-offset:2px}
+.wrap{position:relative;max-width:620px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.clouds{position:absolute;inset:0 0 auto;height:420px;pointer-events:none;overflow:hidden}
+.clouds svg{position:absolute;fill:#fff}
 
-header{display:flex;align-items:center;gap:10px;padding:8px 2px}
-header svg{width:40px;height:40px;flex:none}
-header b{font-size:21px;font-weight:900;letter-spacing:-.4px}
+header{position:relative;display:flex;align-items:center;gap:10px;padding:8px 2px}
+header svg{width:44px;height:44px;flex:none}
+header b{font-size:22px;font-weight:900;letter-spacing:-.4px}
 header span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
 
-/* 첫 화면 */
-.hero{position:relative;overflow:hidden;border-radius:26px;margin:10px 0 18px;padding:26px 20px 20px;color:var(--sky-ink);
-  background:radial-gradient(circle at 104% -6%, rgba(255,200,61,.6) 0 50px, transparent 51px),linear-gradient(160deg,var(--sky),var(--sky-2));
-  box-shadow:0 18px 36px -18px rgba(42,98,168,.6)}
-.hero h1{position:relative;font-size:30px;line-height:1.3;margin:0 0 8px;padding-right:30px;letter-spacing:-.8px;font-weight:900}
-.hero h1 em{font-style:normal;color:var(--sun)}
-.hero p{position:relative;margin:0 0 16px;color:rgba(255,255,255,.88);font-size:16px}
-.say{position:relative;display:grid;gap:8px;margin:0 0 18px}
-.bubble{justify-self:end;max-width:92%;background:var(--sun);color:var(--sun-ink);border-radius:18px 18px 6px 18px;padding:9px 14px;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center}
-.bubble svg{width:20px;height:20px;flex:none}
-.noti{position:relative;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.92);color:#22263A;border-radius:16px;padding:9px 12px;margin:0 0 12px;font-size:14px;line-height:1.4;box-shadow:0 6px 16px -8px rgba(0,0,0,.35)}
-.noti small{color:#5B6178}
-.noti .ni{position:relative;flex:none;width:36px;height:36px;border-radius:9px;background:#E7F2FD;display:grid;place-items:center}
-.noti .ni svg{width:30px;height:30px}
-.noti .ni i{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#E5372E;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 4px}
-.reply{justify-self:start;max-width:92%;background:rgba(255,255,255,.96);color:#22263A;border-radius:18px 18px 18px 6px;padding:9px 14px;font-size:15px;display:flex;gap:10px;align-items:center}
-.reply .ava{flex:none;width:34px;height:34px;border-radius:50%;background:#FFE7A6;color:#3D2800;display:grid;place-items:center;font-weight:900}
-.reply small{display:block;color:#5B6178;font-size:12.5px;line-height:1.3}
-.reply .ok{color:#14804E;font-weight:800}
-.reply.voice .play{flex:none;width:34px;height:34px;border-radius:50%;background:var(--voice);color:#fff;display:grid;place-items:center}
-.reply.voice .play svg{width:14px;height:14px;margin-left:2px}
-.bars{display:inline-flex;gap:2px;align-items:center;height:16px;margin-left:4px;vertical-align:middle}
-.bars i{width:3px;border-radius:2px;background:var(--voice);opacity:.65}
-.ctas{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero{position:relative;text-align:center;padding:18px 4px 6px}
+.hero h1{font-size:30px;line-height:1.3;margin:0 0 10px;letter-spacing:-.8px;font-weight:900}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 60%,var(--sun) 60%)}
+.hero p{margin:0 auto 18px;color:var(--muted);font-size:16.5px;max-width:30em}
+
+/* 앱 화면 미리보기 */
+.phone{position:relative;max-width:330px;margin:0 auto 18px;background:rgba(255,255,255,.55);border-radius:30px;padding:14px;display:grid;gap:10px;text-align:left}
+.p-inbox{background:var(--sun-soft);border-radius:20px;padding:12px;display:grid;justify-items:center;gap:6px}
+.p-inbox b{font-size:16px}
+.p-sun{width:104px;height:104px;border-radius:50%;background:var(--sun);color:var(--sun-ink);display:grid;place-items:center;align-content:center;gap:0;
+  box-shadow:0 0 0 8px rgba(255,214,107,.4);animation:hop 1.3s ease-in-out infinite;font-weight:900;font-size:15px;line-height:1.2;text-align:center}
+.p-sun small{font-size:11px;font-weight:700}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.p-sun{animation:none}}
+.p-pick{background:#fff;border-radius:20px;padding:12px;display:grid;gap:8px}
+.p-pick b{text-align:center;font-size:14.5px}
+.p-people{display:flex;justify-content:space-around}
+.p-people span{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px}
+.p-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.p-btns span{border-radius:12px;padding:9px 6px;font-size:12.5px;font-weight:800;text-align:center;line-height:1.3}
+.p-ask{background:var(--ask);color:#fff}
+.p-mic{background:var(--mic-bg);color:var(--mic-ink)}
+
+.ctas{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:16px;padding:14px 12px;font-weight:800;font-size:17px;text-decoration:none;text-align:center;min-height:52px}
 .btn svg{width:21px;height:21px;flex:none}
-.btn.sun{background:var(--sun);color:var(--sun-ink);box-shadow:0 4px 0 var(--sun-deep)}
-.btn.ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.5)}
-.btn.line{background:var(--card);color:var(--ink);border:1px solid var(--line)}
-.badges{position:relative;display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.badges span{font-size:13px;border:1px solid rgba(255,255,255,.55);color:#fff;border-radius:999px;padding:3px 11px}
+.btn.sun{background:var(--sun);color:var(--sun-ink)}
+.btn.blue{background:var(--ask);color:#fff}
+.btn.line{background:#fff;color:var(--ink);grid-column:1/-1}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:14px}
+.badges span{font-size:13px;background:rgba(255,255,255,.75);border-radius:999px;padding:3px 11px;color:var(--muted);font-weight:700}
 
-h2{font-size:22px;font-weight:900;letter-spacing:-.4px;margin:30px 2px 10px;line-height:1.35}
+h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line-height:1.35}
 .sub{color:var(--muted);margin:0 2px 12px;font-size:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px;margin:10px 0}
-.why p{margin:0 0 10px}
-.why p:last-child{margin:0}
-.why b{color:var(--sky-2)}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .why b{color:var(--sun)} }
+.card{background:var(--card);border-radius:22px;padding:18px;margin:10px 0}
 
-/* 사용법 */
+/* 시작 순서: 방장 먼저 */
+.order{background:#fff;border:3px solid var(--ask);border-radius:24px;padding:18px;display:grid;gap:12px}
+.order .tag{justify-self:start;background:var(--ask);color:#fff;font-weight:900;font-size:14px;border-radius:99px;padding:3px 12px}
+.order h3{margin:0;font-size:22px;font-weight:900;line-height:1.35}
+.st{display:flex;gap:12px;align-items:flex-start;background:var(--field);border-radius:16px;padding:12px}
+.st .n{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:19px}
+.st.a .n{background:var(--sun);color:var(--sun-ink)}
+.st.b .n{background:var(--ask);color:#fff}
+.st.c .n{background:var(--mic-bg);color:var(--mic-ink)}
+.st b{display:block;font-size:18px;line-height:1.4}
+.st p{margin:2px 0 0;font-size:15.5px;color:var(--muted)}
+.warn{background:var(--warn-soft);border-radius:16px;padding:14px;display:flex;gap:10px;align-items:flex-start}
+.warn svg{flex:none;width:26px;height:26px;color:var(--warn);margin-top:2px}
+.warn b{color:var(--warn)}
+.warn p{margin:0;font-size:16px}
+
+/* 쓰는 법 */
 .steps{display:grid;gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
-.steps li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+.steps li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;background:var(--card);border-radius:18px;padding:14px}
 .steps li::before{content:counter(s);flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;font-weight:900;background:var(--sun);color:var(--sun-ink)}
 .steps b{display:block;font-size:18px;margin-bottom:2px}
 .steps p{margin:0;font-size:15.5px;color:var(--muted)}
+.chip{display:inline-block;border-radius:8px;padding:0 7px;font-weight:800;font-size:15px}
+.chip.ask{background:var(--ask);color:#fff}
+.chip.mic{background:var(--mic-bg);color:var(--mic-ink)}
+.chip.sun{background:var(--sun);color:var(--sun-ink)}
 
 /* 장점 */
 .pts{display:grid;gap:8px}
-.pts>div{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
-.pts .ic{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--field);color:var(--sky-2)}
-.pts .ic.sun{background:#FFF1C7;color:#8A5A00}
-.pts .ic.voice{background:var(--voice-soft);color:var(--voice)}
+.pts>div{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:18px;padding:14px}
+.pts .ic{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#E3EBFF;color:var(--ask)}
+.pts .ic.sun{background:var(--sun-soft);color:#8A5A00}
+.pts .ic.voice{background:var(--mic-bg);color:var(--mic-ink)}
 .pts .ic svg{width:22px;height:22px}
-.pts p{margin:0;font-size:15.5px;color:var(--muted);line-height:1.6}
+.pts p{margin:0;font-size:15.5px;color:var(--muted)}
 .pts p b{display:block;font-size:17.5px;color:var(--ink);margin-bottom:1px}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .pts .ic{color:#9CC6F2} :root:not([data-theme="light"]) .pts .ic.sun{background:#3A3216;color:var(--sun)} }
 
 /* 어르신용 큰 글씨 안내 */
-.elder{background:#FFF6DA;border:2px solid var(--sun);border-radius:22px;padding:20px;margin:12px 0}
+.elder{background:var(--sun-soft);border:2px solid var(--sun);border-radius:22px;padding:20px;margin:12px 0}
 .elder h3{margin:0 0 4px;font-size:22px;font-weight:900;color:#3D2800}
 .elder .sub{margin:0 0 12px;color:#6B5A2A;font-size:15px}
 .elder ol{margin:0;padding:0;list-style:none;display:grid;gap:12px}
@@ -112,144 +122,114 @@ h2{font-size:22px;font-weight:900;letter-spacing:-.4px;margin:30px 2px 10px;line
 .elder .k{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center}
 .elder .k svg{width:30px;height:30px}
 .elder .k.sun{background:var(--sun);color:#3D2800}
-.elder .k.voice{background:var(--voice);color:#fff}
-.elder .k.app{background:#fff;border:2px solid var(--sun)}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .elder{background:#2E2914;} :root:not([data-theme="light"]) .elder h3,:root:not([data-theme="light"]) .elder li{color:#FFF1C7} :root:not([data-theme="light"]) .elder .sub{color:#D9C68E} }
+.elder .k.ask{background:var(--ask);color:#fff}
+.elder .k.voice{background:var(--mic-bg);color:var(--mic-ink)}
 
-/* 탭·설치 */
-.seg{display:flex;background:var(--field);border:1px solid var(--line);border-radius:14px;padding:3px;margin:4px 0 12px}
-.seg button{flex:1;border:0;background:none;padding:10px 4px;border-radius:11px;font-size:16px;color:var(--muted);min-height:44px}
-.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.inst{display:grid;gap:8px;margin:0;padding:0;list-style:none;counter-reset:i}
-.inst li{counter-increment:i;display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
-.inst li:last-child{border-bottom:0}
-.inst li::before{content:counter(i);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:900;background:var(--sky-2);color:#fff;margin-top:1px}
-.inst li small{display:block;color:var(--muted);font-size:14px}
-.kbd{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--line);background:var(--field);border-radius:7px;padding:0 7px;font-size:14px;font-weight:800;white-space:nowrap}
-.kbd svg{width:15px;height:15px}
-.foot{font-size:15px;color:var(--muted);margin:12px 4px 0}
-.foot b{color:var(--ink)}
-.final{margin-top:24px}
-.final .ctas{max-width:440px;margin:0 auto}
+.final{margin-top:26px}
 .credit{text-align:center;font-size:13px;color:var(--muted);margin:22px 0 0}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--bg);
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;
   padding:10px 16px;border-radius:999px;font-size:15px;opacity:0;transition:.2s;max-width:90vw;text-align:center;pointer-events:none;z-index:9}
 .toast.on{opacity:1;transform:translateX(-50%)}
 @media (prefers-reduced-motion: reduce){.toast{transition:none}}
-[hidden]{display:none!important}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></symbol>
   <symbol id="mic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></g></symbol>
-  <symbol id="play" viewBox="0 0 20 20"><path fill="currentColor" d="M4 2.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 4 2.5z"/></symbol>
   <symbol id="share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v8.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V11"/></g></symbol>
   <symbol id="open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></g></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></g></symbol>
   <symbol id="hand" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11M12 10V4.5a1.5 1.5 0 0 1 3 0V11M15 10.5V6.5a1.5 1.5 0 0 1 3 0v6.5a8 8 0 0 1-8 8h-.5a6 6 0 0 1-4.6-2.2L2.5 15a1.5 1.5 0 0 1 2.3-1.9L7 15V8.5a1.5 1.5 0 0 1 3 0"/></g></symbol>
-  <symbol id="face" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5"/></g></symbol>
-  <symbol id="text" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2M12 5v14M9 19h6"/></g></symbol>
-  <symbol id="link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></g></symbol>
   <symbol id="clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
   <symbol id="lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></g></symbol>
   <symbol id="bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></g></symbol>
   <symbol id="heart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
-  <symbol id="dots" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></g></symbol>
+  <symbol id="alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></g></symbol>
 </svg>
 
 <div class="wrap">
+  <div class="clouds" aria-hidden="true">
+    <svg viewBox="0 0 120 50" width="96" style="right:70px;top:-6px;opacity:.8"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
+    <svg viewBox="0 0 120 50" width="80" style="right:-10px;top:30px"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
+    <svg viewBox="0 0 120 50" width="110" style="left:-30px;top:170px;opacity:.85"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
+    <svg viewBox="0 0 120 50" width="70" style="right:-14px;top:300px;opacity:.75"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
+  </div>
+
   <header>
     <svg viewBox="0 0 100 100" aria-hidden="true">
-      <g stroke="#E8A200" stroke-width="7" stroke-linecap="round"><path d="M50 4v10M50 86v10M4 50h10M86 50h10M17 17l7 7M76 76l7 7M17 83l7-7M76 24l7-7"/></g>
-      <circle cx="50" cy="50" r="30" fill="#FFC83D"/>
-      <circle cx="40" cy="47" r="4" fill="#3D2800"/><circle cx="60" cy="47" r="4" fill="#3D2800"/>
-      <path d="M41 58q9 8 18 0" stroke="#3D2800" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <g stroke="#F7B733" stroke-width="7" stroke-linecap="round"><path d="M50 4v10M50 86v10M4 50h10M86 50h10M17 17l7 7M76 76l7 7M17 83l7-7M76 24l7-7"/></g>
+      <circle cx="50" cy="50" r="30" fill="#FFD66B"/>
+      <circle cx="40" cy="47" r="4" fill="#5A4100"/><circle cx="60" cy="47" r="4" fill="#5A4100"/>
+      <path d="M41 58q9 8 18 0" stroke="#5A4100" stroke-width="4" fill="none" stroke-linecap="round"/>
     </svg>
     <div><b>별일없지?</b><span>멀리 사는 가족 안부 앱</span></div>
   </header>
 
   <section class="hero">
-    <h1>멀리 계신 부모님, <em>버튼 한 번</em>으로 안부를 나눠요.</h1>
-    <p>"별일 없지?" 하고 물으면, 받은 가족은 해님 버튼 한 번으로 "별일 없어요". 글자를 칠 필요가 없어요.</p>
-    <div class="noti" aria-hidden="true"><span class="ni"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="#FFC83D"/><circle cx="40" cy="47" r="4" fill="#3D2800"/><circle cx="60" cy="47" r="4" fill="#3D2800"/><path d="M41 58q9 8 18 0" stroke="#3D2800" stroke-width="4" fill="none" stroke-linecap="round"/></svg><i>2</i></span><span><b>별일없지?</b> <small>지금</small><br>철수가 "별일 없지?" 하고 안부를 물었어요.</span></div>
-    <div class="say">
-      <div class="bubble"><svg><use href="#sun"/></svg>엄마, 별일 없지?</div>
-      <div class="reply"><span class="ava">엄</span><span><b>엄마</b> <span class="ok">✓ 별일 없대요</span><small class="num">서울 오전 9:12 · 토론토는 저녁 7:12</small></span></div>
-      <div class="reply voice"><span class="play"><svg><use href="#play"/></svg></span><span><b>엄마의 목소리</b> <span class="num">0:42</span><span class="bars" aria-hidden="true"><i style="height:6px"></i><i style="height:12px"></i><i style="height:9px"></i><i style="height:15px"></i><i style="height:7px"></i><i style="height:13px"></i><i style="height:10px"></i><i style="height:5px"></i></span></span></div>
+    <h1>멀리 사는 가족,<br><em>버튼 한 번</em>으로 안부를 나눠요.</h1>
+    <p>가족을 고르고 "별일 없지?"를 보내면, 받은 가족 화면에 해님이 통통 움직여요. 해님을 터치하면 "별일 없어요". 글자를 칠 필요가 없어요.</p>
+
+    <div class="phone" aria-label="앱 화면 예시" role="img">
+      <div class="p-inbox"><b>엄마가 물었어요</b><div class="p-sun">별일 없어요<small>터치로 답하기</small></div></div>
+      <div class="p-pick">
+        <b>누구의 안부를 물어볼까요?</b>
+        <div class="p-people"><span style="background:#CFE3FF;color:#4E6BB8">모두</span><span style="background:#FFE9A8;color:#5A4100">엄</span><span style="background:#D8F2E4;color:#1F5E3F">아</span><span style="background:#FFDCE5;color:#8A1F3D">동</span></div>
+        <div class="p-btns"><span class="p-ask">음성 없이<br>간단히 물어보기</span><span class="p-mic">간단한 음성으로<br>물어보기</span></div>
+      </div>
     </div>
+
     <div class="ctas">
       <a class="btn sun" href="./"><svg><use href="#open"/></svg>앱 열기</a>
-      <button class="btn ghost" data-share><svg><use href="#share"/></svg>가족에게 보내기</button>
+      <a class="btn blue" href="manual.html"><svg><use href="#book"/></svg>사용 설명서</a>
+      <button class="btn line" data-share><svg><use href="#share"/></svg>가족에게 소개하기</button>
     </div>
-    <div class="badges"><span>무료</span><span>가입 없음</span><span>광고 없음</span><span>아이폰 · 갤럭시</span></div>
+    <div class="badges"><span>무료</span><span>가입 없음</span><span>광고 없음</span><span>아이폰 · 갤럭시</span><span>가족 최대 8명</span></div>
   </section>
 
-  <h2>왜 만들었나요?</h2>
-  <div class="card why">
-    <p>해외에 살거나 멀리 떨어져 사는 가족은 <b>시차 때문에 전화 한 통도 때를 맞추기 어려워요.</b> 연로하신 부모님은 <b>카톡 글자를 치는 게 번거롭고,</b> 매일 전화를 드리기엔 서로 부담스럽지요.</p>
-    <p>그래도 <b>"오늘도 별일 없으신지"</b>는 매일 알고 싶어요. 그래서 묻는 것도, 답하는 것도 <b>버튼 한 번</b>으로 끝나게 만들었어요.</p>
+  <h2>시작하기 전에 꼭 읽어 주세요.</h2>
+  <div class="order">
+    <span class="tag">시작 순서</span>
+    <h3>방장 한 사람이 먼저 가족방을 만들고,<br>가족은 초대 코드로 들어와요.</h3>
+    <div class="st a"><span class="n">1</span><div><b>방장 정하기 (한 사람만)</b><p>휴대폰을 잘 다루는 가족 한 명이 방장이 돼요. 방장만 "새 가족방 만들기"를 눌러요.</p></div></div>
+    <div class="st b"><span class="n">2</span><div><b>방장이 가족 초대하기</b><p>가족 편집 → "+ 가족 초대하기" → 초대 코드 6자리를 카카오톡으로 보내요. 한 사람에 코드 하나씩이에요.</p></div></div>
+    <div class="st c"><span class="n">3</span><div><b>가족은 초대 코드로 들어가기</b><p>받은 링크로 앱을 설치하고 "초대 코드가 있어요"를 눌러 6자리를 넣어요.</p></div></div>
+    <div class="warn"><svg><use href="#alert"/></svg><p><b>가족은 "새 가족방 만들기"를 누르지 마세요.</b> 누르면 혼자만 있는 다른 가족방이 생기고, 그 폰으로는 초대 코드를 넣어도 우리 가족방에 들어올 수 없어요.</p></div>
   </div>
 
   <h2>이렇게 써요.</h2>
   <ol class="steps">
-    <li><div><b>가족 얼굴을 눌러요.</b><p>한 명을 고르거나 "가족 모두"를 눌러요. 그곳은 지금 몇 시인지도 함께 보여요.</p></div></li>
-    <li><div><b>"별일 없지?"를 보내요.</b><p>노란 버튼을 누르면 끝. 받는 가족 폰에 바로 알림이 가요. 할 말이 있으면 분홍 "목소리 보내기"로 1분까지 말로 남겨요.</p></div></li>
-    <li><div><b>해님 버튼 한 번으로 답해요.</b><p>받은 가족 화면에 큰 해님 버튼 "별일 없어요"가 떠요. 누르면 보낸 사람 화면에 "✓ 별일 없대요"가 보여요.</p></div></li>
+    <li><div><b>누구의 안부를 물어볼지 골라요.</b><p>가족 한 명 또는 "가족 모두"를 눌러요. 그곳이 지금 몇 시인지도 함께 보여요.</p></div></li>
+    <li><div><b>두 버튼 중 하나를 눌러요.</b><p><span class="chip ask">음성 없이 간단히 물어보기</span>는 누르면 끝. <span class="chip mic">간단한 음성으로 물어보기</span>는 누르고 말한 뒤 다시 누르면 보내져요 (1분까지).</p></div></li>
+    <li><div><b>받은 가족은 해님을 터치해요.</b><p>화면 맨 위에 <span class="chip sun">별일 없어요</span> 해님이 답할 때까지 움직여요. 터치하면 보낸 사람 소식에 "✓ 별일 없대요"가 떠요.</p></div></li>
   </ol>
 
-  <h2>연로하신 부모님도 쉽게 쓰세요.</h2>
+  <h2>어르신도 쉽게 쓰세요.</h2>
   <div class="pts">
-    <div><span class="ic sun"><svg><use href="#hand"/></svg></span><p><b>글자 입력이 없어요.</b>묻기도 답하기도 누르기만 하면 돼요. 답장은 큰 해님 버튼 한 번이에요.</p></div>
-    <div><span class="ic sun"><svg><use href="#sun"/></svg></span><p><b>크고 또렷한 버튼과 글씨.</b>손가락으로 누르기 쉬운 큰 버튼, 큰 글씨, 둥근 모양으로 만들었어요. 메뉴도 "홈"과 "가족 편집" 두 개뿐이에요.</p></div>
-    <div><span class="ic"><svg><use href="#face"/></svg></span><p><b>가족 사진을 보고 골라요.</b>프로필 사진을 넣으면 이름 대신 얼굴을 보고 누를 수 있어요. 누구에게 보낼지 헷갈리지 않아요.</p></div>
-    <div><span class="ic voice"><svg><use href="#mic"/></svg></span><p><b>말로 하는 안부.</b>분홍 버튼을 누르고 말씀만 하시면 돼요. 1분 안의 짧은 목소리라 부담이 없고, 아이폰·갤럭시 어디서나 들려요.</p></div>
-    <div><span class="ic"><svg><use href="#bell"/></svg></span><p><b>알림과 빨간 숫자로 바로 알아요.</b>앱을 닫아 두어도 안부·답장·목소리가 오면 카톡처럼 폰에 알림이 떠요. 해님 아이콘 위 빨간 숫자로 아직 답하지 않은 안부와 안 들은 목소리 개수가 보여요.</p></div>
-    <div><span class="ic voice"><svg><use href="#heart"/></svg></span><p><b>그리운 목소리로 "별일 없지?".</b>가족마다 자기 목소리로 "별일 없지?"를 녹음해 두면, 안부를 받은 가족이 앱을 열 때 그 목소리가 들려요. 소리는 언제든 켜고 끌 수 있어요.</p></div>
-    <div><span class="ic"><svg><use href="#link"/></svg></span><p><b>설치는 자녀가 링크 하나로.</b>회원가입·비밀번호가 없어요. 자녀가 카톡으로 초대 코드를 보내면 이름만 적고 끝. 옆에 있는 가족이 대신 해 드려도 돼요.</p></div>
-    <div><span class="ic"><svg><use href="#clock"/></svg></span><p><b>시차 걱정 없이.</b>가족마다 사는 곳의 지금 시각이 보여서, 한밤중에 연락하는 실수를 막아 줘요.</p></div>
-    <div><span class="ic"><svg><use href="#lock"/></svg></span><p><b>우리 가족끼리만.</b>초대받은 가족(최대 8명)만 들어와요. 한 사람에게 보낸 목소리는 두 사람만 들을 수 있고, 잘못 보내면 바로 지울 수 있어요.</p></div>
+    <div><span class="ic sun"><svg><use href="#hand"/></svg></span><p><b>글자 입력이 없어요.</b>묻기도 답하기도 누르기만 하면 돼요.</p></div>
+    <div><span class="ic sun"><svg><use href="#sun"/></svg></span><p><b>답할 게 있으면 해님이 움직여요.</b>받은 안부가 있을 때만 맨 위에 해님이 나타나 통통 움직여요. 놓칠 일이 없어요.</p></div>
+    <div><span class="ic voice"><svg><use href="#mic"/></svg></span><p><b>말로 하는 안부.</b>1분 안의 짧은 목소리라 부담이 없어요. 소식에서 <b style="display:inline;font-size:inherit;color:#8A1F3D">[엄마]한테 받은 음성 안부</b>는 분홍, 내가 보낸 건 파랑으로 구분돼요.</p></div>
+    <div><span class="ic"><svg><use href="#bell"/></svg></span><p><b>알림과 빨간 숫자.</b>앱을 닫아 두어도 안부·답장·목소리가 오면 폰에 알림이 떠요.</p></div>
+    <div><span class="ic voice"><svg><use href="#heart"/></svg></span><p><b>내 목소리로 "별일 없지?"</b>가족 편집에서 녹음해 두면, 안부를 받은 가족이 앱을 열 때 그 목소리가 들려요.</p></div>
+    <div><span class="ic"><svg><use href="#clock"/></svg></span><p><b>시차 걱정 없이.</b>가족마다 사는 곳의 지금 시각이 보여요.</p></div>
+    <div><span class="ic"><svg><use href="#lock"/></svg></span><p><b>우리 가족끼리만.</b>초대받은 가족(최대 8명)만 들어와요. 목소리는 90일 뒤 자동으로 지워지고, 보낸 사람과 방장은 언제든 지울 수 있어요.</p></div>
   </div>
 
   <div class="elder" role="note">
     <h3>어르신께는 이것만 알려 드리세요.</h3>
     <p class="sub">이 부분을 보여 드리거나 캡처해서 보내 드려도 좋아요.</p>
     <ol>
-      <li><span class="k app"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="30" fill="#FFC83D"/><circle cx="40" cy="47" r="4" fill="#3D2800"/><circle cx="60" cy="47" r="4" fill="#3D2800"/><path d="M41 58q9 8 18 0" stroke="#3D2800" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span>해님 그림에 빨간 숫자나 알림이 보이면 눌러서 여세요.</li>
-      <li><span class="k sun"><svg><use href="#sun"/></svg></span>큰 해님이 보이면 "별일 없어요"를 누르세요.</li>
+      <li><span class="k sun"><svg><use href="#sun"/></svg></span>해님이 움직이면 해님을 누르세요.</li>
+      <li><span class="k ask"><svg><use href="#hand"/></svg></span>안부를 물을 땐 가족 얼굴을 누르고 파란 버튼을 누르세요.</li>
       <li><span class="k voice"><svg><use href="#mic"/></svg></span>말을 남기려면 분홍 버튼을 누르고 말씀하세요. 다시 누르면 보내져요.</li>
     </ol>
   </div>
 
-  <h2>설치 (1분)</h2>
-  <p class="sub">가족방은 한 사람(보통 자녀)이 먼저 만들고, 가족 편집에서 카톡으로 초대해요.</p>
-  <div class="seg" role="tablist" aria-label="휴대폰 종류">
-    <button role="tab" data-os="ios" aria-selected="true">아이폰</button>
-    <button role="tab" data-os="android" aria-selected="false">갤럭시</button>
-  </div>
-  <div class="card" data-os-panel="ios">
-    <ol class="inst">
-      <li><div><b>Safari</b>로 이 페이지 열기.<small>카톡에서 열었다면 <span class="kbd">⋯</span> → "Safari로 열기".</small></div></li>
-      <li><div><span class="kbd"><svg><use href="#share"/></svg> 공유</span> → <span class="kbd">홈 화면에 추가</span>.</div></li>
-      <li><div><b>홈 화면의 해님 아이콘</b>으로 열기.<small>아이폰은 꼭 이 아이콘으로 시작해야 가족방이 이어져요.</small></div></li>
-      <li><div>"새 가족방 만들기" 또는 받은 <b>초대 코드 6자리</b> 넣기, 마이크 <b>허용</b>.</div></li>
-      <li><div>앱 홈의 <span class="kbd">알림 켜기</span> → <b>허용</b>.<small>가족 편집에서 내 목소리로 "별일 없지?"도 녹음해 두세요.</small></div></li>
-    </ol>
-  </div>
-  <div class="card" data-os-panel="android" hidden>
-    <ol class="inst">
-      <li><div><b>Chrome</b>으로 이 페이지 열기.<small>카톡에서 열었다면 <span class="kbd"><svg><use href="#dots"/></svg></span> → "다른 브라우저로 열기".</small></div></li>
-      <li><div><span class="kbd"><svg><use href="#dots"/></svg></span> → <span class="kbd">홈 화면에 추가</span> 또는 <span class="kbd">앱 설치</span>.</div></li>
-      <li><div><b>홈 화면의 해님 아이콘</b>으로 열기.</div></li>
-      <li><div>"새 가족방 만들기" 또는 받은 <b>초대 코드 6자리</b> 넣기, 마이크 <b>허용</b>.</div></li>
-      <li><div>앱 홈의 <span class="kbd">알림 켜기</span> → <b>허용</b>.<small>가족 편집에서 내 목소리로 "별일 없지?"도 녹음해 두세요.</small></div></li>
-    </ol>
-  </div>
-  <p class="foot">초대 코드는 <b>48시간</b> 안에, <b>한 사람만</b> 쓸 수 있어요. 아이폰 알림은 iOS 16.4 이상에서, 홈 화면 아이콘으로 연 앱에서만 받을 수 있어요. 갤럭시는 아이콘 숫자 대신 폰 설정에 따라 점이 보일 수 있어요.</p>
-
   <div class="final">
     <div class="ctas">
       <a class="btn sun" href="./"><svg><use href="#open"/></svg>앱 열기</a>
-      <button class="btn line" data-share><svg><use href="#share"/></svg>가족에게 보내기</button>
+      <a class="btn blue" href="manual.html"><svg><use href="#book"/></svg>사용 설명서</a>
+      <button class="btn line" data-share><svg><use href="#share"/></svg>가족에게 소개하기</button>
     </div>
   </div>
   <p class="credit">© 2026 별일없지? · Developed by SEOKWOO KIM</p>
@@ -260,23 +240,11 @@ h2{font-size:22px;font-weight:900;letter-spacing:-.4px;margin:30px 2px 10px;line
 <script>
 (function () {
   'use strict';
-  const $$ = (s) => Array.from(document.querySelectorAll(s));
-
-  // 설치 안내: 휴대폰 종류 자동 선택
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  function setOS(o) {
-    $$('[data-os]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.os === o)));
-    $$('[data-os-panel]').forEach((p) => { p.hidden = p.dataset.osPanel !== o; });
-  }
-  $$('[data-os]').forEach((b) => b.addEventListener('click', () => setOS(b.dataset.os)));
-  setOS(isAndroid ? 'android' : 'ios');
-
-  // 가족에게 보내기: 휴대폰 공유창(카톡·문자) → 안 되면 링크 복사
   let tT;
   function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => t.classList.remove('on'), 2600); }
   const url = location.href.split('#')[0].split('?')[0];
-  const text = '멀리 사는 가족끼리 버튼 한 번으로 안부를 묻고 답하는 앱이에요. "별일 없지?" 하고 물으면 해님 버튼 한 번으로 "별일 없어요". 글자 입력이 없어서 부모님도 쉽게 쓰세요. 무료 · 가입 없음.';
-  $$('[data-share]').forEach((b) => b.addEventListener('click', async () => {
+  const text = '멀리 사는 가족끼리 버튼 한 번으로 안부를 묻고 답하는 앱이에요. 방장 한 사람이 가족방을 만들고, 가족은 초대 코드로 들어와요. 무료 · 가입 없음.';
+  document.querySelectorAll('[data-share]').forEach((b) => b.addEventListener('click', async () => {
     if (navigator.share) {
       try { await navigator.share({ title: '별일없지? — 멀리 사는 가족, 버튼 한 번으로 안부', text, url }); return; }
       catch (e) { if (e && e.name === 'AbortError') return; }
