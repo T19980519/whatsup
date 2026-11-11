@@ -160,6 +160,10 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu
 .onboard h2{margin:0;font-family:var(--display);font-weight:900;font-size:26px}
 .onboard .f input{width:100%}
 .ios-tip{background:var(--warn-soft);border-radius:16px;padding:12px 14px;font-size:15px;line-height:1.55;margin:0}
+.ob-boss{margin:6px 0 -8px;text-align:center;font-size:14px;color:var(--muted);line-height:1.5}
+.ob-warn{margin:0;background:var(--warn-soft);color:var(--ink);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.55}
+.ob-warn b{color:var(--warn)}
+.boss-tag{display:inline-block;vertical-align:4px;font-size:13px;font-weight:900;background:var(--sun);color:var(--sun-ink);border-radius:99px;padding:2px 10px;margin-left:4px}
 .linkbtn{font:inherit;font-size:15px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:6px}
 .msg.mine{background:#E3EBFF}
 .item .who{font-weight:900;color:#7A5A00}
@@ -292,24 +296,26 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
   <!-- 처음 들어왔을 때: 가족방 만들기 / 초대 코드로 들어오기 -->
   <section class="screen" id="onboard">
     <div class="panel onboard" id="obJoin" hidden>
-      <h2>가족방에 들어가기</h2>
-      <p class="sub" style="margin:0">가족에게 받은 초대 코드를 넣고 이름을 적어 주세요.</p>
+      <h2>초대 코드로 들어가기</h2>
+      <p class="sub" style="margin:0">방장에게 카카오톡으로 받은 초대 코드 6자리를 넣고 이름을 적어 주세요.</p>
       <p class="ios-tip" data-ios-tip hidden>아이폰은 먼저 <b>홈 화면에 추가</b>한 뒤, 홈 화면의 해님 아이콘으로 열어서 들어가 주세요. 사파리에서 들어가면 홈 화면 앱에서는 다시 초대를 받아야 해요.</p>
       <label class="f" for="obCode">초대 코드 (6자리)<input id="obCode" maxlength="6" autocomplete="off" autocapitalize="characters" style="letter-spacing:.2em;text-transform:uppercase"></label>
       <label class="f" for="obJoinName">표시 이름<input id="obJoinName" maxlength="10" placeholder="예: 엄마, 큰아들, 민지"></label>
       <div class="f2" data-ob-region="join"></div>
       <button class="btn btn-sun" id="obJoinBtn">가족방에 들어가기</button>
-      <button class="linkbtn" data-ob-switch="create">초대 코드가 없어요 · 새 가족방 만들기</button>
+      <p class="ob-boss">가족방을 처음 만드는 <b>방장 한 사람만</b> 누르세요.<br>가족은 누르지 마세요.</p>
+      <button class="linkbtn" data-ob-switch="create">방장만 · 새 가족방 만들기</button>
     </div>
     <div class="panel onboard" id="obCreate" hidden>
-      <h2>새 가족방 만들기</h2>
+      <h2>새 가족방 만들기 <span class="boss-tag">방장만</span></h2>
+      <p class="ob-warn"><b>방장 한 사람만 만들어요.</b> 가족은 여기서 만들지 말고, 방장에게 받은 초대 코드로 들어가 주세요. 여기서 만들면 혼자만 있는 다른 가족방이 생겨서 우리 가족방에 들어갈 수 없어요.</p>
       <p class="sub" style="margin:0">만든 사람이 방장이 되어 가족을 초대하고 관리해요.</p>
       <p class="ios-tip" data-ios-tip hidden>아이폰은 먼저 <b>홈 화면에 추가</b>한 뒤, 홈 화면의 해님 아이콘으로 열어서 가족방을 만들어 주세요. 사파리에서 만들면 홈 화면 앱에서는 방장 권한이 이어지지 않아요.</p>
       <label class="f" for="obFamName">가족방 이름<input id="obFamName" maxlength="30" value="우리 가족"></label>
       <label class="f" for="obMyName">내 표시 이름<input id="obMyName" maxlength="10" placeholder="예: 큰아들, 민지"></label>
       <div class="f2" data-ob-region="create"></div>
       <button class="btn btn-sun" id="obCreateBtn">가족방 만들기</button>
-      <button class="linkbtn" data-ob-switch="join">초대 코드가 있어요</button>
+      <button class="btn btn-ghost" data-ob-switch="join">← 초대 코드가 있어요 (가족)</button>
     </div>
     <div class="panel onboard" id="obLoading"><p class="sub" style="margin:0;text-align:center">불러오는 중…</p></div>
   </section>
