@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.7'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
+const APP_VERSION = '1.8'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -166,11 +166,11 @@ function renderHome() {
   if (pend.length) {
     const names = [...new Set(pend.map(a => nameOf(a.from_id)))];
     $('inboxText').innerHTML = esc(subj(names.join(', '))) + ' 물었어요<small>“별일 없지?” · ' + timeKo(tzOf(S.me), new Date(pend[0].created_at)) + '</small>';
-    btn.classList.remove('done');
-    btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>눌러서 답하기</small>';
+    btn.classList.remove('done'); btn.classList.add('wiggle');
+    btn.innerHTML = face('wait') + '<b>별일 없어요</b><small>터치로 대답하기</small>';
   } else if (justAnswered) {
     $('inboxText').innerHTML = '안부를 전했어요';
-    btn.classList.add('done');
+    btn.classList.add('done'); btn.classList.remove('wiggle');
     btn.innerHTML = face('happy') + '<b>답했어요!</b><small>' + timeKo(tzOf(S.me), new Date(S.answeredAt)) + '</small>';
   }
 
