@@ -199,7 +199,10 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 @keyframes hop{0%,100%{transform:translateY(0);box-shadow:0 0 0 10px color-mix(in srgb,var(--sun) 40%,transparent)}
   50%{transform:translateY(-10px);box-shadow:0 0 0 22px color-mix(in srgb,var(--sun) 18%,transparent)}}
 @keyframes tilt{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
-@media (prefers-reduced-motion:reduce){.big.wiggle,.big.wiggle .face{animation:none}}
+/* 폰의 "동작 줄이기"가 켜져 있으면: 해님은 제자리에 두고 빛만 깜빡여요 (어지럽지 않게, 그래도 눈에 띄게) */
+@keyframes glow{0%,100%{box-shadow:0 0 0 8px color-mix(in srgb,var(--sun) 30%,transparent);filter:brightness(1)}
+  50%{box-shadow:0 0 0 24px color-mix(in srgb,var(--sun) 60%,transparent);filter:brightness(1.08)}}
+@media (prefers-reduced-motion:reduce){.big.wiggle{animation:glow 1.2s ease-in-out infinite}.big.wiggle .face{animation:none}}
 .greet small{display:block;font-size:18px;font-weight:700;color:var(--muted);margin-top:2px}
 .people{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
 .person{font:inherit;color:inherit;border:3px solid transparent;background:var(--bg);border-radius:22px;padding:12px 6px 10px;cursor:pointer;
