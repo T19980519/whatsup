@@ -78,15 +78,13 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
 
 /* 시작 순서: 방장 먼저 */
 .order{background:#fff;border:3px solid var(--ask);border-radius:24px;padding:18px;display:grid;gap:12px}
-.order .tag{justify-self:start;background:var(--ask);color:#fff;font-weight:900;font-size:14px;border-radius:99px;padding:3px 12px}
-.order h3{margin:0;font-size:22px;font-weight:900;line-height:1.35}
-.st{display:flex;gap:12px;align-items:flex-start;background:var(--field);border-radius:16px;padding:12px}
-.st .n{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:19px}
-.st.a .n{background:var(--sun);color:var(--sun-ink)}
-.st.b .n{background:var(--ask);color:#fff}
-.st.c .n{background:var(--mic-bg);color:var(--mic-ink)}
-.st b{display:block;font-size:18px;line-height:1.4}
-.st p{margin:2px 0 0;font-size:15.5px;color:var(--muted)}
+.order{text-align:center}
+.order h3{margin:0;font-size:21px;font-weight:900;line-height:1.4}
+.flow{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;font-weight:800;font-size:15.5px}
+.flow span{border-radius:12px;padding:5px 10px}
+.flow i{font-style:normal;color:var(--muted)}
+.f1{background:var(--sun);color:var(--sun-ink)} .f2{background:var(--ask);color:#fff} .f3{background:var(--mic-bg);color:var(--mic-ink)}
+.order .warn{text-align:left}
 .warn{background:var(--warn-soft);border-radius:16px;padding:14px;display:flex;gap:10px;align-items:flex-start}
 .warn svg{flex:none;width:26px;height:26px;color:var(--warn);margin-top:2px}
 .warn b{color:var(--warn)}
@@ -187,14 +185,11 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
     <div class="badges"><span>무료</span><span>가입 없음</span><span>광고 없음</span><span>아이폰 · 갤럭시</span><span>가족 최대 8명</span></div>
   </section>
 
-  <h2>시작하기 전에 꼭 읽어 주세요.</h2>
+  <h2>시작 순서</h2>
   <div class="order">
-    <span class="tag">시작 순서</span>
     <h3>방장 한 사람이 먼저 가족방을 만들고,<br>가족은 초대 코드로 들어와요.</h3>
-    <div class="st a"><span class="n">1</span><div><b>방장 정하기 (한 사람만)</b><p>휴대폰을 잘 다루는 가족 한 명이 방장이 돼요. 방장만 첫 화면 맨 아래 "방장만 · 새 가족방 만들기"를 눌러요.</p></div></div>
-    <div class="st b"><span class="n">2</span><div><b>방장이 가족 초대하기</b><p>가족 편집 → "+ 가족 초대하기" → 초대 코드 6자리를 카카오톡으로 보내요. 한 사람에 코드 하나씩이에요.</p></div></div>
-    <div class="st c"><span class="n">3</span><div><b>가족은 초대 코드로 들어가기</b><p>받은 링크로 앱을 설치하고, 첫 화면 "초대 코드로 들어가기"에 6자리를 넣어요.</p></div></div>
-    <div class="warn"><svg><use href="#alert"/></svg><p><b>가족은 맨 아래 "방장만 · 새 가족방 만들기"를 누르지 마세요.</b> 누르면 혼자만 있는 다른 가족방이 생기고, 그 폰으로는 초대 코드를 넣어도 우리 가족방에 들어올 수 없어요.</p></div>
+    <div class="flow"><span class="f1">① 방장이 만들기</span><i>→</i><span class="f2">② 초대 코드 보내기</span><i>→</i><span class="f3">③ 가족은 코드 입력</span></div>
+    <div class="warn"><svg><use href="#alert"/></svg><p><b>가족은 "새 가족방 만들기"를 누르지 마세요.</b> 누르면 우리 가족방에 들어올 수 없어요. 자세한 순서는 <a href="manual.html">사용 설명서</a>에 있어요.</p></div>
   </div>
 
   <h2>이렇게 써요.</h2>
@@ -207,12 +202,9 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
   <h2>어르신도 쉽게 쓰세요.</h2>
   <div class="pts">
     <div><span class="ic sun"><svg><use href="#hand"/></svg></span><p><b>글자 입력이 없어요.</b>묻기도 답하기도 누르기만 하면 돼요.</p></div>
-    <div><span class="ic sun"><svg><use href="#sun"/></svg></span><p><b>답할 게 있으면 해님이 움직여요.</b>받은 안부가 있을 때만 맨 위에 해님이 나타나 통통 움직여요. 놓칠 일이 없어요.</p></div>
-    <div><span class="ic voice"><svg><use href="#mic"/></svg></span><p><b>말로 하는 안부.</b>1분 안의 짧은 목소리라 부담이 없어요. 소식에서 <b style="display:inline;font-size:inherit;color:#8A1F3D">[엄마]한테 받은 음성 안부</b>는 분홍, 내가 보낸 건 파랑으로 구분돼요.</p></div>
-    <div><span class="ic"><svg><use href="#bell"/></svg></span><p><b>알림과 빨간 숫자.</b>앱을 닫아 두어도 안부·답장·목소리가 오면 폰에 알림이 떠요.</p></div>
-    <div><span class="ic voice"><svg><use href="#heart"/></svg></span><p><b>내 목소리로 "별일 없지?"</b>가족 편집에서 녹음해 두면, 안부를 받은 가족이 앱을 열 때 그 목소리가 들려요.</p></div>
+    <div><span class="ic"><svg><use href="#bell"/></svg></span><p><b>알림과 움직이는 해님.</b>안부가 오면 폰에 알림이 뜨고, 앱 맨 위 해님이 답할 때까지 움직여요.</p></div>
     <div><span class="ic"><svg><use href="#clock"/></svg></span><p><b>시차 걱정 없이.</b>가족마다 사는 곳의 지금 시각이 보여요.</p></div>
-    <div><span class="ic"><svg><use href="#lock"/></svg></span><p><b>우리 가족끼리만.</b>초대받은 가족(최대 8명)만 들어와요. 목소리는 90일 뒤 자동으로 지워지고, 보낸 사람과 방장은 언제든 지울 수 있어요.</p></div>
+    <div><span class="ic"><svg><use href="#lock"/></svg></span><p><b>우리 가족끼리만.</b>초대받은 가족(최대 8명)만 들어와요. 목소리는 90일 뒤 자동으로 지워져요.</p></div>
   </div>
 
   <div class="elder" role="note">
