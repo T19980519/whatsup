@@ -45,23 +45,98 @@ header span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
 .hero h1 em{font-style:normal;background:linear-gradient(transparent 60%,var(--sun) 60%)}
 .hero p{margin:0 auto 18px;color:var(--muted);font-size:16.5px;max-width:30em}
 
-/* 앱 화면 미리보기 */
-.phone{position:relative;max-width:330px;margin:0 auto 18px;background:rgba(255,255,255,.55);border-radius:30px;padding:14px;display:grid;gap:10px;text-align:left}
-.p-inbox{background:var(--sun-soft);border-radius:20px;padding:12px;display:grid;justify-items:center;gap:6px}
-.p-inbox b{font-size:16px}
-.p-sun{width:104px;height:104px;border-radius:50%;background:var(--sun);color:var(--sun-ink);display:grid;place-items:center;align-content:center;gap:0;
-  box-shadow:0 0 0 8px rgba(255,214,107,.4);animation:hop 1.3s ease-in-out infinite;font-weight:900;font-size:15px;line-height:1.2;text-align:center}
-.p-sun small{font-size:11px;font-weight:700}
-@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@media (prefers-reduced-motion:reduce){.p-sun{animation:none}}
-.p-pick{background:#fff;border-radius:20px;padding:12px;display:grid;gap:8px}
-.p-pick b{text-align:center;font-size:14.5px}
-.p-people{display:flex;justify-content:space-around}
-.p-people span{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px}
-.p-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.p-btns span{border-radius:12px;padding:9px 6px;font-size:12.5px;font-weight:800;text-align:center;line-height:1.3}
-.p-ask{background:var(--ask);color:#fff}
-.p-mic{background:var(--mic-bg);color:var(--mic-ink)}
+/* ===== 모션그래픽 10초 (장면 문구·시간은 맨 아래 <script>의 MOTION에서 고쳐요) =====
+   각 장면 안의 움직임은 장면 길이(--s)에 맞춰 늘었다 줄었다 해요. */
+.mo{position:relative;width:100%;max-width:380px;aspect-ratio:5/6;margin:4px auto 20px;border-radius:28px;overflow:hidden;
+  background:linear-gradient(180deg,#CFE6FF,#EEF7FF);box-shadow:0 12px 30px -16px rgba(47,54,84,.45);text-align:center}
+.mo.paused *,.mo.paused *::before,.mo.paused *::after{animation-play-state:paused!important}
+.mo.still *{animation:none!important}
+.mo-bar{position:absolute;left:16px;right:60px;top:20px;display:flex;gap:4px;z-index:3}
+.mo-bar i{height:4px;border-radius:2px;background:rgba(47,54,84,.15);overflow:hidden}
+.mo-bar i::after{content:"";display:block;height:100%;width:var(--p,0%);background:var(--ink)}
+.mo-ctl{position:absolute;right:8px;top:0;z-index:3;width:44px;height:44px;border:0;background:none;display:grid;place-items:center;color:var(--ink)}
+.mo-ctl span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.8);display:grid;place-items:center}
+.mo-ctl svg{width:14px;height:14px}
+.mo-scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
+.mo-scene.on{opacity:1;visibility:visible;transition-delay:.16s} /* 앞 장면이 먼저 사라진 뒤 다음 장면이 나와요 */
+.mo-vis{position:absolute;left:0;right:0;top:44px;bottom:84px;display:grid;place-items:center}
+.mo-cap{position:absolute;left:12px;right:12px;bottom:18px;min-height:56px;display:flex;flex-direction:column;justify-content:center}
+.mo-cap b{font-size:20px;font-weight:900;line-height:1.3;letter-spacing:-.4px}
+.mo-cap small{font-size:14px;font-weight:700;color:var(--muted);line-height:1.4}
+.mo-scene.on .mo-cap{animation:mo-up calc(var(--s) * .15) ease-out both}
+@keyframes mo-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes mo-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+
+/* 장면 1: 토론토 ↔ 서울 */
+.mo-two{display:flex;align-items:center;gap:6px}
+.mo-city{width:104px;border-radius:20px;padding:14px 6px;display:grid;justify-items:center;gap:2px}
+.mo-city svg{width:40px;height:40px;margin-bottom:4px}
+.mo-city b{font-size:17px;font-weight:900}
+.mo-city span{font-size:14px;font-weight:700}
+.mo-city.night{background:#2F3654;color:#fff}
+.mo-city.night span{color:#C9D3F5}
+.mo-city.day{background:#FFF4CF;color:#5A4100}
+.mo-link{position:relative;width:56px;height:24px}
+.mo-link::before{content:"";position:absolute;left:0;right:0;top:11px;border-top:2px dashed rgba(47,54,84,.35)}
+.mo-link svg{position:absolute;left:0;top:0;width:24px;height:24px;color:#E8587E}
+.mo-scene.on .night{animation:mo-inl calc(var(--s) * .25) ease-out both}
+.mo-scene.on .day{animation:mo-inr calc(var(--s) * .25) ease-out calc(var(--s) * .1) both}
+.mo-scene.on .mo-link svg{animation:mo-heart calc(var(--s) * .55) ease-in-out calc(var(--s) * .35) both}
+@keyframes mo-inl{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@keyframes mo-inr{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes mo-heart{0%{opacity:0;transform:translateX(0) scale(.6)}20%{opacity:1;transform:translateX(0) scale(1)}85%{opacity:1;transform:translateX(32px) scale(1)}100%{opacity:1;transform:translateX(32px) scale(1.3)}}
+
+/* 장면 2·3: 휴대폰 */
+.mo-wrap{position:relative}
+.mo-phone{position:relative;width:176px;height:212px;background:#fff;border-radius:24px;box-shadow:0 8px 20px -10px rgba(47,54,84,.4);padding:14px 12px;text-align:center}
+.mo-phone .t{margin:0;font-size:13px;font-weight:900;line-height:1.35}
+.mo-ppl{display:flex;justify-content:space-between;margin:12px 4px 0}
+.mo-ppl span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px}
+.mo-ask{margin-top:14px;height:46px;border-radius:12px;background:var(--ask);color:#fff;font-size:12.5px;font-weight:800;line-height:1.3;display:grid;place-items:center}
+.mo-sent{margin-top:10px;font-size:12px;font-weight:800;color:#1F7A4D}
+.mo-tap{position:absolute;width:30px;height:30px;border-radius:50%;background:rgba(47,54,84,.28);border:2px solid #fff;opacity:0;pointer-events:none}
+.mo-fly{position:absolute;left:96px;top:110px;background:var(--sun);color:var(--sun-ink);border-radius:14px 14px 14px 4px;padding:4px 10px;font-size:12px;font-weight:800;white-space:nowrap;opacity:0}
+.s2 .mo-tap{left:73px;top:66px}
+.mo-scene.on.s2 .mo-tap{animation:mo-tap2 var(--s) ease-in-out both}
+.mo-scene.on .mo-ppl .sel{animation:mo-sel var(--s) linear both}
+.mo-scene.on .mo-ask{animation:mo-press var(--s) ease-out both}
+.mo-scene.on .mo-fly{animation:mo-fly var(--s) ease-out both}
+.mo-scene.on .mo-sent{animation:mo-sent var(--s) ease-out both}
+@keyframes mo-tap2{0%{opacity:0;transform:translate(0,0) scale(1.3)}12%{opacity:1;transform:translate(0,0) scale(1)}20%{transform:translate(0,0) scale(.75)}28%{opacity:1;transform:translate(0,0) scale(1)}45%{opacity:1;transform:translate(0,57px) scale(1)}53%{transform:translate(0,57px) scale(.75)}60%{opacity:1;transform:translate(0,57px) scale(1)}70%,100%{opacity:0;transform:translate(0,57px) scale(1)}}
+@keyframes mo-sel{0%,22%{box-shadow:0 0 0 0 rgba(78,107,184,0)}26%,100%{box-shadow:0 0 0 3px #4E6BB8}}
+@keyframes mo-press{0%,50%{transform:none;filter:none}54%{transform:scale(.94);filter:brightness(.9)}60%,100%{transform:none;filter:none}}
+@keyframes mo-fly{0%,56%{opacity:0;transform:translate(0,0) scale(.8)}62%{opacity:1;transform:translate(0,-6px) scale(1)}90%{opacity:1;transform:translate(30px,-110px)}100%{opacity:0;transform:translate(36px,-124px)}}
+@keyframes mo-sent{0%,60%{opacity:0;transform:translateY(4px)}70%,100%{opacity:1;transform:none}}
+
+.mo-phone .who{margin:0;font-size:11px;font-weight:800;color:var(--muted);line-height:14px}
+.mo-inbox{margin-top:6px;background:#FFF4CF;border-radius:18px;padding:10px 6px 14px}
+.mo-inbox p{margin:0 0 8px;font-size:13px;font-weight:900}
+.mo-sun{position:relative;width:108px;height:108px;margin:0 auto;border-radius:50%;background:var(--sun);color:var(--sun-ink);display:grid;place-content:center;justify-items:center;box-shadow:0 0 0 8px rgba(255,214,107,.45)}
+.mo-sun svg{width:36px;height:18px;margin-bottom:2px}
+.mo-sun b{font-size:14px;font-weight:900;line-height:1.2}
+.mo-sun small{font-size:10px;font-weight:700}
+.mo-done{position:absolute;inset:0;border-radius:50%;background:#BDEFD3;color:#1F5E3F;display:grid;place-content:center;font-size:24px;font-weight:900;line-height:1.1;opacity:0}
+.mo-done b{font-size:14px}
+.s3 .mo-tap{left:73px;top:122px}
+.mo-chip{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);white-space:nowrap;background:#DBF6E7;color:#1F7A4D;font-size:13px;font-weight:800;border-radius:99px;padding:6px 12px;box-shadow:0 6px 14px -6px rgba(31,122,77,.5)}
+.mo-scene.on .mo-sun{animation:mo-hop3 var(--s) ease-in-out both}
+.mo-scene.on.s3 .mo-tap{animation:mo-tap3 var(--s) ease-in-out both}
+.mo-scene.on .mo-done{animation:mo-done var(--s) ease-out both}
+.mo-scene.on .mo-chip{animation:mo-chip var(--s) ease-out both}
+@keyframes mo-hop3{0%,15%,30%,45%,100%{transform:translateY(0)}7.5%,22.5%,37.5%{transform:translateY(-9px)}}
+@keyframes mo-tap3{0%,38%{opacity:0;transform:scale(1.3)}44%{opacity:1;transform:scale(1)}50%{transform:scale(.75)}56%{opacity:1;transform:scale(1)}64%,100%{opacity:0;transform:scale(1)}}
+@keyframes mo-done{0%,50%{opacity:0;transform:scale(.9)}56%,100%{opacity:1;transform:none}}
+@keyframes mo-chip{0%,64%{opacity:0;transform:translate(-50%,10px) scale(.9)}74%,100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+
+/* 장면 4: 로고 */
+.mo-logo{display:grid;justify-items:center;gap:6px}
+.mo-logo svg{width:128px;height:128px}
+.mo-logo .rays{transform-box:fill-box;transform-origin:center}
+.mo-logo b{font-size:32px;font-weight:900;letter-spacing:-.8px}
+.mo-scene.on .mo-logo svg{animation:mo-pop calc(var(--s) * .3) cubic-bezier(.3,1.5,.6,1) both}
+.mo-scene.on .mo-logo .rays{animation:mo-spin var(--s) linear both}
+.mo-scene.on .mo-logo b{animation:mo-up calc(var(--s) * .3) ease-out calc(var(--s) * .2) both}
+@keyframes mo-spin{from{transform:rotate(0)}to{transform:rotate(45deg)}}
 
 .ctas{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:16px;padding:14px 12px;font-weight:800;font-size:17px;text-decoration:none;text-align:center;min-height:52px}
@@ -165,17 +240,52 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
   </header>
 
   <section class="hero">
+    <section class="mo" id="mo" aria-label="별일없지? 10초 소개">
+      <div class="mo-bar" aria-hidden="true"></div>
+      <button class="mo-ctl" type="button" aria-label="소개 애니메이션 멈추기"><span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="8.5" y="1" width="3.5" height="12" rx="1" fill="currentColor"/></svg></span></button>
+
+      <div class="mo-scene s1">
+        <div class="mo-vis" aria-hidden="true"><div class="mo-two">
+          <div class="mo-city night"><svg viewBox="0 0 24 24"><path fill="#FFD66B" d="M15 3a9 9 0 1 0 6.5 15.2A8 8 0 0 1 15 3z"/></svg><b>토론토</b><span>저녁 7:12</span></div>
+          <div class="mo-link"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-7.5-10.5A4.5 4.5 0 0 1 12 7.6a4.5 4.5 0 0 1 7.5 2.9C19.5 16.4 12 21 12 21z"/></svg></div>
+          <div class="mo-city day"><svg viewBox="0 0 100 100"><g stroke="#F7B733" stroke-width="8" stroke-linecap="round"><path d="M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M19 81l8-8M73 27l8-8"/></g><circle cx="50" cy="50" r="24" fill="#FFD66B"/></svg><b>서울</b><span>아침 9:12</span></div>
+        </div></div>
+        <div class="mo-cap"><b></b><small></small></div>
+      </div>
+
+      <div class="mo-scene s2">
+        <div class="mo-vis" aria-hidden="true"><div class="mo-wrap"><div class="mo-phone">
+          <p class="t">누구의 안부를<br>물어볼까요?</p>
+          <div class="mo-ppl"><span style="background:#CFE3FF;color:#4E6BB8;font-size:12px">모두</span><span class="sel" style="background:#FFE9A8;color:#5A4100">엄</span><span style="background:#D8F2E4;color:#1F5E3F">아</span></div>
+          <div class="mo-ask">음성 없이<br>간단히 물어보기</div>
+          <div class="mo-sent">✓ 엄마에게 보냈어요</div>
+          <i class="mo-tap"></i><span class="mo-fly">별일 없지?</span>
+        </div></div></div>
+        <div class="mo-cap"><b></b><small></small></div>
+      </div>
+
+      <div class="mo-scene s3">
+        <div class="mo-vis" aria-hidden="true"><div class="mo-wrap"><div class="mo-phone">
+          <p class="who">엄마 폰</p>
+          <div class="mo-inbox"><p>큰아들이 물었어요</p>
+            <div class="mo-sun"><svg viewBox="0 0 70 34" aria-hidden="true"><circle cx="20" cy="9" r="6" fill="#5A4100"/><circle cx="50" cy="9" r="6" fill="#5A4100"/><path d="M22 22q13 12 26 0" stroke="#5A4100" stroke-width="5" fill="none" stroke-linecap="round"/></svg><b>별일 없어요</b><small>터치로 답하기</small><div class="mo-done">✓<b>답했어요!</b></div></div>
+          </div>
+          <i class="mo-tap"></i>
+        </div><div class="mo-chip">✓ 별일 없대요 · 엄마</div></div></div>
+        <div class="mo-cap"><b></b><small></small></div>
+      </div>
+
+      <div class="mo-scene s4">
+        <div class="mo-vis" aria-hidden="true"><div class="mo-logo">
+          <svg viewBox="0 0 100 100"><g class="rays" stroke="#F7B733" stroke-width="7" stroke-linecap="round"><path d="M50 4v10M50 86v10M4 50h10M86 50h10M17 17l7 7M76 76l7 7M17 83l7-7M76 24l7-7"/></g><circle cx="50" cy="50" r="30" fill="#FFD66B"/><circle cx="40" cy="47" r="4" fill="#5A4100"/><circle cx="60" cy="47" r="4" fill="#5A4100"/><path d="M41 58q9 8 18 0" stroke="#5A4100" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+          <b>별일없지?</b>
+        </div></div>
+        <div class="mo-cap"><b></b><small></small></div>
+      </div>
+    </section>
+
     <h1>멀리 사는 가족,<br><em>버튼 한 번</em>으로 안부를 나눠요.</h1>
     <p>가족을 고르고 "별일 없지?"를 보내면, 받은 가족 화면에 해님이 통통 움직여요. 해님을 터치하면 "별일 없어요". 글자를 칠 필요가 없어요.</p>
-
-    <div class="phone" aria-label="앱 화면 예시" role="img">
-      <div class="p-inbox"><b>엄마가 물었어요</b><div class="p-sun">별일 없어요<small>터치로 답하기</small></div></div>
-      <div class="p-pick">
-        <b>누구의 안부를 물어볼까요?</b>
-        <div class="p-people"><span style="background:#CFE3FF;color:#4E6BB8">모두</span><span style="background:#FFE9A8;color:#5A4100">엄</span><span style="background:#D8F2E4;color:#1F5E3F">아</span><span style="background:#FFDCE5;color:#8A1F3D">동</span></div>
-        <div class="p-btns"><span class="p-ask">음성 없이<br>간단히 물어보기</span><span class="p-mic">간단한 음성으로<br>물어보기</span></div>
-      </div>
-    </div>
 
     <div class="ctas">
       <a class="btn sun" href="./"><svg><use href="#open"/></svg>앱 열기</a>
@@ -246,5 +356,89 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
   }));
 })();
 </script>
+<script>
+(function () {
+  'use strict';
+  // ===== 모션그래픽 설정 =====
+  // 장면 순서대로 [몇 초, 큰 자막, 작은 자막]. 문구나 시간을 바꾸려면 여기만 고치면 돼요.
+  // (장면 그림 자체를 바꾸려면 위쪽 <section class="mo"> 안의 장면 s1~s4를 고쳐요)
+  const MOTION = {
+    loop: true,
+    scenes: [
+      { sec: 2, title: '멀리 사는 가족',           sub: '토론토 저녁 7시, 서울은 아침 9시' },
+      { sec: 3, title: '얼굴 누르고, 버튼 한 번',   sub: '"별일 없지?"가 바로 가요' },
+      { sec: 3, title: '해님 터치로 "별일 없어요"', sub: '글자 입력이 필요 없어요' },
+      { sec: 2, title: '버튼 한 번으로 안부',       sub: '무료 · 가입 없음 · 광고 없음' },
+    ],
+  };
+
+  const stage = document.getElementById('mo');
+  if (!stage) return;
+  const scenes = Array.from(stage.querySelectorAll('.mo-scene'));
+  const bar = stage.querySelector('.mo-bar'), ctl = stage.querySelector('.mo-ctl');
+  const list = MOTION.scenes.slice(0, scenes.length);
+  const starts = []; let total = 0;
+  list.forEach((s, i) => {
+    starts.push(total); total += s.sec;
+    const el = scenes[i];
+    el.style.setProperty('--s', s.sec + 's');
+    el.querySelector('.mo-cap b').textContent = s.title;
+    el.querySelector('.mo-cap small').textContent = s.sub;
+    const seg = document.createElement('i'); seg.style.flex = String(s.sec); bar.appendChild(seg);
+  });
+  const segs = Array.from(bar.children);
+  const PAUSE = '<span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="8.5" y="1" width="3.5" height="12" rx="1" fill="currentColor"/></svg></span>';
+  const PLAY = '<span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11a.8.8 0 0 0 1.2.7l9-5.5a.8.8 0 0 0 0-1.4l-9-5.5A.8.8 0 0 0 3 1.5z" fill="currentColor"/></svg></span>';
+
+  let t = 0, last = null, cur = -1, raf = 0, userPaused = false, offscreen = false;
+  function show(i) {
+    if (i === cur) return;
+    scenes.forEach((el, k) => el.classList.toggle('on', k === i));
+    cur = i;
+  }
+  function draw() {
+    let i = list.length - 1;
+    for (let k = 0; k < list.length; k++) if (t < starts[k] + list[k].sec) { i = k; break; }
+    show(i);
+    segs.forEach((s, k) => s.style.setProperty('--p', Math.min(100, Math.max(0, (t - starts[k]) / list[k].sec * 100)) + '%'));
+  }
+  function frame(now) {
+    if (last != null) t += (now - last) / 1000;
+    last = now;
+    if (t >= total) {
+      if (MOTION.loop) { t %= total; cur = -1; } else { t = total - 0.001; draw(); return stop(true); }
+    }
+    draw();
+    raf = requestAnimationFrame(frame);
+  }
+  function running() { return raf !== 0; }
+  function start() {
+    if (running() || userPaused || offscreen || document.hidden) return;
+    stage.classList.remove('paused', 'still'); last = null; raf = requestAnimationFrame(frame);
+  }
+  function stop(byUser) {
+    cancelAnimationFrame(raf); raf = 0; stage.classList.add('paused');
+    if (byUser) { userPaused = true; ctl.innerHTML = PLAY; ctl.setAttribute('aria-label', '소개 애니메이션 재생'); }
+  }
+  ctl.addEventListener('click', () => {
+    if (userPaused) {
+      userPaused = false; ctl.innerHTML = PAUSE; ctl.setAttribute('aria-label', '소개 애니메이션 멈추기');
+      if (stage.classList.contains('still') || (!MOTION.loop && t >= total - 0.01)) { t = 0; cur = -1; }
+      start();
+    } else stop(true);
+  });
+  // 화면에 안 보이면 잠깐 멈춰요 (배터리 아끼기)
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => { offscreen = !es[0].isIntersecting; if (offscreen) { if (running()) stop(false); } else start(); }, { threshold: 0.3 }).observe(stage);
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { if (running()) stop(false); } else start(); });
+
+  // 폰에서 "동작 줄이기"를 켠 사람에게는 마지막 장면을 멈춘 채로 보여 주고, 재생 버튼으로 볼 수 있게 해요
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    t = starts[list.length - 1]; stage.classList.add('still'); draw(); stop(true);
+  } else { draw(); start(); }
+})();
+</script>
+
 </body>
 </html>
