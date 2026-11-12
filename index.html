@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800;900&display=swap">
 <style>
-/* Layout: one phone-width column under a sky band with clouds. Home = pick a family member, ask "별일 없지?" or send a voice; answer incoming asks with one big sun button. Rounded, chunky, big text. */
+/* Layout: one phone-width column on a plain pastel sky (no clouds, 2026-11-12). Home = pick a family member, ask "별일 없지?" or send a voice; answer incoming asks with one big sun button. Rounded, chunky, big text. */
 :root{
   --sky:#DCEEFF; --bg:#EEF6FF; --surface:#FFFFFF; --ink:#2F3654; --muted:#5A6385; --line:#DCE6F5;
   --sun:#FFD66B; --sun-deep:#F7B733; --sun-ink:#5A4100; --cheek:#FFB3C3;
@@ -39,8 +39,6 @@ body{background:var(--sky);color:var(--ink);font-family:var(--body);
   font-size:17px;font-weight:500;line-height:1.6;word-break:keep-all;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 48px}
 .wrap{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:18px;position:relative}
-.clouds{position:absolute;inset:0 0 auto;height:380px;pointer-events:none;overflow:hidden}
-.clouds svg{position:absolute;fill:var(--cloud)}
 .brand{position:relative;display:flex;align-items:center;gap:10px;padding-top:6px}
 .logo{width:44px;height:44px;flex:none}
 .brand h1{font-family:var(--display);font-weight:800;font-size:34px;margin:0;line-height:1}
@@ -270,13 +268,6 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
 <body>
 
 <div class="wrap">
-  <div class="clouds" aria-hidden="true">
-    <svg viewBox="0 0 120 50" width="90" style="right:96px;top:-10px;opacity:.7"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
-    <svg viewBox="0 0 120 50" width="74" style="right:-8px;top:4px"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
-    <svg viewBox="0 0 120 50" width="110" style="left:-30px;top:120px;opacity:.85"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
-    <svg viewBox="0 0 120 50" width="86" style="right:-20px;top:210px;opacity:.8"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
-    <svg viewBox="0 0 120 50" width="64" style="left:20px;top:320px;opacity:.65"><path d="M20 45a18 18 0 0 1 4-35 22 22 0 0 1 40-4 18 18 0 0 1 30 10 15 15 0 0 1 6 29z"/></svg>
-  </div>
   <div class="brand">
     <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
       <g stroke="var(--sun-deep)" stroke-width="7" stroke-linecap="round">
