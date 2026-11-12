@@ -51,12 +51,15 @@ header span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
   background:linear-gradient(180deg,#CFE6FF,#EEF7FF);box-shadow:0 12px 30px -16px rgba(47,54,84,.45);text-align:center}
 .mo.paused *,.mo.paused *::before,.mo.paused *::after{animation-play-state:paused!important}
 .mo.still *{animation:none!important}
-.mo-bar{position:absolute;left:16px;right:60px;top:20px;display:flex;gap:4px;z-index:3}
+.mo-bar{position:absolute;left:16px;right:104px;top:20px;display:flex;gap:4px;z-index:3}
 .mo-bar i{height:4px;border-radius:2px;background:rgba(47,54,84,.15);overflow:hidden}
 .mo-bar i::after{content:"";display:block;height:100%;width:var(--p,0%);background:var(--ink)}
-.mo-ctl{position:absolute;right:8px;top:0;z-index:3;width:44px;height:44px;border:0;background:none;display:grid;place-items:center;color:var(--ink)}
-.mo-ctl span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.8);display:grid;place-items:center}
+.mo-ctl,.mo-snd{position:absolute;right:8px;top:0;z-index:3;width:44px;height:44px;border:0;background:none;display:grid;place-items:center;color:var(--ink)}
+.mo-snd{right:52px}
+.mo-ctl span,.mo-snd span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.8);display:grid;place-items:center}
 .mo-ctl svg{width:14px;height:14px}
+.mo-snd svg{width:18px;height:18px}
+.mo-snd[aria-pressed="true"] span{background:var(--ink);color:#fff}
 .mo-scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
 .mo-scene.on{opacity:1;visibility:visible;transition-delay:.16s} /* 앞 장면이 먼저 사라진 뒤 다음 장면이 나와요 */
 .mo-vis{position:absolute;left:0;right:0;top:44px;bottom:84px;display:grid;place-items:center}
@@ -246,6 +249,7 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
   <section class="hero">
     <section class="mo" id="mo" aria-label="별일없지? 10초 소개">
       <div class="mo-bar" aria-hidden="true"></div>
+      <button class="mo-snd" type="button" aria-pressed="false" aria-label="효과음 켜기"><span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg></span></button>
       <button class="mo-ctl" type="button" aria-label="소개 애니메이션 멈추기"><span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="8.5" y="1" width="3.5" height="12" rx="1" fill="currentColor"/></svg></span></button>
 
       <div class="mo-scene s1">
@@ -372,22 +376,81 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
 (function () {
   'use strict';
   // ===== 모션그래픽 설정 =====
-  // 장면 순서대로 [몇 초, 큰 자막, 작은 자막]. 문구나 시간을 바꾸려면 여기만 고치면 돼요.
+  // 장면 순서대로 [몇 초, 큰 자막, 작은 자막, 효과음]. 문구나 시간을 바꾸려면 여기만 고치면 돼요.
+  // 효과음 sfx: [장면 안 위치(0=시작, 1=끝), 소리 이름]. 소리 이름은 아래 SOUNDS에 있어요.
   // (장면 그림 자체를 바꾸려면 위쪽 <section class="mo"> 안의 장면 s1~s4를 고쳐요)
   const MOTION = {
     loop: true,
     scenes: [
-      { sec: 2, title: '멀리 사는 가족',           sub: '뉴욕 저녁 7시, 서울은 아침 9시' },
-      { sec: 3, title: '얼굴 누르고, 버튼 한 번',   sub: '"별일 없지?"가 바로 가요' },
-      { sec: 3, title: '해님 터치로 "별일 없어요"', sub: '글자 입력이 필요 없어요' },
-      { sec: 2, title: '버튼 한 번으로 안부',       sub: '무료 · 가입 없음 · 광고 없음' },
+      { sec: 2, title: '멀리 사는 가족',           sub: '뉴욕 저녁 7시, 서울은 아침 9시',
+        sfx: [[0, 'pop'], [0.1, 'pop2'], [0.46, 'glide'], [0.82, 'ding']] },
+      { sec: 3, title: '얼굴 누르고, 버튼 한 번',   sub: '"별일 없지?"가 바로 가요',
+        sfx: [[0.2, 'tok'], [0.53, 'tok'], [0.58, 'whoosh'], [0.66, 'sent']] },
+      { sec: 3, title: '해님 터치로 "별일 없어요"', sub: '글자 입력이 필요 없어요',
+        sfx: [[0, 'hop1'], [0.15, 'hop2'], [0.3, 'hop3'], [0.5, 'tok'], [0.53, 'success'], [0.68, 'ding']] },
+      { sec: 2, title: '버튼 한 번으로 안부',       sub: '무료 · 가입 없음 · 광고 없음',
+        sfx: [[0.02, 'jingle']] },
     ],
   };
+
+  // ===== 효과음: 파일 없이 브라우저가 만들어요 (실로폰·마림바 느낌). 저작권 걱정 없음 =====
+  let ac = null, master = null, noise = null;
+  function audio() {
+    if (ac) return ac;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ac = new AC(); master = ac.createGain(); master.gain.value = 0.5; master.connect(ac.destination);
+    noise = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate);
+    const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return ac;
+  }
+  // 마림바 한 음: 맑은 기본음 + 나무 두드리는 듯한 짧은 고음
+  function note(f, at, dur, g) {
+    [[f, g], [f * 4, g * 0.25]].forEach(([fr, gg], k) => {
+      const o = ac.createOscillator(), v = ac.createGain();
+      o.type = 'sine'; o.frequency.value = fr;
+      const d = k ? Math.min(0.06, dur) : dur;
+      v.gain.setValueAtTime(0.0001, at); v.gain.exponentialRampToValueAtTime(gg, at + 0.006);
+      v.gain.exponentialRampToValueAtTime(0.0001, at + d);
+      o.connect(v); v.connect(master); o.start(at); o.stop(at + d + 0.02);
+    });
+  }
+  function slide(f1, f2, at, dur, g) {
+    const o = ac.createOscillator(), v = ac.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(f1, at); o.frequency.exponentialRampToValueAtTime(f2, at + dur);
+    v.gain.setValueAtTime(0.0001, at); v.gain.exponentialRampToValueAtTime(g, at + dur * 0.3);
+    v.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    o.connect(v); v.connect(master); o.start(at); o.stop(at + dur + 0.02);
+  }
+  function swish(at, dur, g) {
+    const n = ac.createBufferSource(), bp = ac.createBiquadFilter(), v = ac.createGain();
+    n.buffer = noise; bp.type = 'bandpass'; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(600, at); bp.frequency.exponentialRampToValueAtTime(3200, at + dur);
+    v.gain.setValueAtTime(0.0001, at); v.gain.exponentialRampToValueAtTime(g, at + dur * 0.4);
+    v.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    n.connect(bp); bp.connect(v); v.connect(master); n.start(at); n.stop(at + dur + 0.02);
+  }
+  const C5 = 523.25, E5 = 659.25, G5 = 783.99, C6 = 1046.5, E6 = 1318.5, G6 = 1567.98;
+  const SOUNDS = {
+    pop:     (t) => note(G5, t, 0.22, 0.22),                  // 카드 등장 "톡"
+    pop2:    (t) => note(C6, t, 0.22, 0.2),
+    glide:   (t) => slide(520, 1040, t, 0.7, 0.07),           // 하트가 건너가는 "슝~"
+    ding:    (t) => note(E6, t, 0.5, 0.24),                   // 도착 "띵"
+    tok:     (t) => slide(1500, 520, t, 0.06, 0.3),           // 손가락 터치 "톡"
+    whoosh:  (t) => swish(t, 0.35, 0.18),                     // 말풍선 날아가는 "휘릭"
+    sent:    (t) => { note(C6, t, 0.25, 0.22); note(G6, t + 0.09, 0.4, 0.22); }, // 보냈어요 "띠링"
+    hop1:    (t) => note(C5, t, 0.28, 0.3),                   // 해님 통·통·통
+    hop2:    (t) => note(E5, t, 0.28, 0.3),
+    hop3:    (t) => note(G5, t, 0.28, 0.3),
+    success: (t) => { note(C6, t, 0.3, 0.24); note(E6, t + 0.1, 0.3, 0.24); note(G6, t + 0.2, 0.5, 0.26); }, // 딩동댕
+    jingle:  (t) => { [C5, E5, G5].forEach((f, i) => note(f, t + i * 0.12, 0.3, 0.26)); note(C6, t + 0.36, 0.7, 0.3); }, // 도미솔도
+  };
+  function play(name) { const fn = SOUNDS[name]; if (fn && ac) fn(ac.currentTime + 0.01); }
 
   const stage = document.getElementById('mo');
   if (!stage) return;
   const scenes = Array.from(stage.querySelectorAll('.mo-scene'));
-  const bar = stage.querySelector('.mo-bar'), ctl = stage.querySelector('.mo-ctl');
+  const bar = stage.querySelector('.mo-bar'), ctl = stage.querySelector('.mo-ctl'), snd = stage.querySelector('.mo-snd');
   const list = MOTION.scenes.slice(0, scenes.length);
   const starts = []; let total = 0;
   list.forEach((s, i) => {
@@ -399,10 +462,13 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
     const seg = document.createElement('i'); seg.style.flex = String(s.sec); bar.appendChild(seg);
   });
   const segs = Array.from(bar.children);
+  const cues = [];
+  list.forEach((s, i) => (s.sfx || []).forEach(([f, name]) => cues.push({ at: starts[i] + f * s.sec, name })));
   const PAUSE = '<span><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="8.5" y="1" width="3.5" height="12" rx="1" fill="currentColor"/></svg></span>';
   const PLAY = '<span><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11a.8.8 0 0 0 1.2.7l9-5.5a.8.8 0 0 0 0-1.4l-9-5.5A.8.8 0 0 0 3 1.5z" fill="currentColor"/></svg></span>';
 
-  let t = 0, last = null, cur = -1, raf = 0, userPaused = false, offscreen = false;
+  let t = 0, last = null, cur = -1, raf = 0, userPaused = false, offscreen = false, soundOn = false, fromStart = false;
+  function fire(a, b) { if (soundOn) cues.forEach((c) => { if (c.at > a && c.at <= b) play(c.name); }); }
   function show(i) {
     if (i === cur) return;
     scenes.forEach((el, k) => el.classList.toggle('on', k === i));
@@ -415,11 +481,13 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
     segs.forEach((s, k) => s.style.setProperty('--p', Math.min(100, Math.max(0, (t - starts[k]) / list[k].sec * 100)) + '%'));
   }
   function frame(now) {
+    const before = fromStart ? -1 : t; fromStart = false;
     if (last != null) t += (now - last) / 1000;
     last = now;
     if (t >= total) {
-      if (MOTION.loop) { t %= total; cur = -1; } else { t = total - 0.001; draw(); return stop(true); }
-    }
+      fire(before, total);
+      if (MOTION.loop) { t %= total; cur = -1; fire(-1, t); } else { t = total - 0.001; draw(); return stop(true); }
+    } else fire(before, t);
     draw();
     raf = requestAnimationFrame(frame);
   }
@@ -438,6 +506,24 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
       if (stage.classList.contains('still') || (!MOTION.loop && t >= total - 0.01)) { t = 0; cur = -1; }
       start();
     } else stop(true);
+  });
+  const SND_ON = '<span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg></span>';
+  const SND_OFF = snd.innerHTML;
+  snd.addEventListener('click', () => {
+    soundOn = !soundOn;
+    snd.setAttribute('aria-pressed', String(soundOn));
+    snd.setAttribute('aria-label', soundOn ? '효과음 끄기' : '효과음 켜기');
+    snd.innerHTML = soundOn ? SND_ON : SND_OFF;
+    if (!soundOn) return;
+    if (!audio()) return;
+    ac.resume();
+    // 처음부터 다시 재생 (멈춰 있었으면 재생)
+    scenes.forEach((el) => el.classList.remove('on')); void stage.offsetWidth;
+    t = 0; cur = -1; fromStart = true; draw();
+    if (userPaused) { userPaused = false; ctl.innerHTML = PAUSE; ctl.setAttribute('aria-label', '소개 애니메이션 멈추기'); }
+    stage.classList.remove('still');
+    if (running()) { cancelAnimationFrame(raf); raf = 0; }
+    start();
   });
   // 화면에 안 보이면 잠깐 멈춰요 (배터리 아끼기)
   if ('IntersectionObserver' in window) {
