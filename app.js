@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.13'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
+const APP_VERSION = '1.14'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -78,6 +78,7 @@ const S = {
   tab: 'home', sheet: null, playing: null, delAsk: null, answeredAt: 0,
   avatars: {},        // 구성원 id → { url, at } (사진 주소)
   listened: new Set(), // 내가 들은 목소리 id
+  box: 'feed',          // 소식 보관함: feed(안부 소식) / in(받은 음성함) / out(보낸 음성함)
   greets: {},          // 구성원 id → { url, at } (안부 목소리 주소)
   greetRec: null,      // 안부 목소리 녹음 중 상태
 };
@@ -188,13 +189,24 @@ function renderHome() {
   $('askBtn').disabled = !S.to;
   if (!rec) $('micBtn').disabled = !S.to;
 
-  // 소식 (안부 + 음성, 최신순)
-  const items = [
-    ...S.asks.map(a => ({ kind: 'ask', at: new Date(a.created_at), a })),
-    ...S.voices.map(v => ({ kind: 'voice', at: new Date(v.created_at), v })),
-  ].sort((x, y) => y.at - x.at).slice(0, 40);
-  $('feed').innerHTML = items.length ? items.map(it => it.kind === 'ask' ? askItem(it.a, it.at) : voiceItem(it.v, it.at)).join('')
-    : '<p class="empty">아직 소식이 없어요. 위에서 가족에게 안부를 물어보세요.</p>';
+  // 소식: 안부 소식 / 받은 음성함 / 보낸 음성함 (최신순)
+  const newIn = unheardVoices().length;
+  $('inDot').hidden = !newIn;
+  $('inDot').textContent = newIn > 9 ? '9+' : String(newIn);
+  $('inDot').setAttribute('aria-label', '새 음성 ' + newIn + '개');
+  document.querySelectorAll('#boxTabs [data-box]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.box === S.box)));
+  const byNew = (x, y) => new Date(y.created_at) - new Date(x.created_at);
+  let html = '', empty = '';
+  if (S.box === 'feed') {
+    html = S.asks.slice().sort(byNew).slice(0, 40).map(a => askItem(a, new Date(a.created_at))).join('');
+    empty = '아직 안부 소식이 없어요. 위에서 가족에게 안부를 물어보세요.';
+  } else {
+    const mineBox = S.box === 'out';
+    html = S.voices.filter(v => (v.sender_id === S.me.id) === mineBox).sort(byNew).slice(0, 60)
+      .map(v => voiceItem(v, new Date(v.created_at))).join('');
+    empty = mineBox ? '보낸 음성이 없어요. 위의 분홍 버튼으로 목소리를 보내 보세요.' : '받은 음성이 없어요.';
+  }
+  $('feed').innerHTML = html || '<p class="empty">' + empty + '</p>';
 }
 
 // 소식 제목의 이름: <이름> 굵게 (안부·음성 공통)
@@ -368,6 +380,10 @@ $('sheet').addEventListener('click', e => {
 $('inviteBtn').addEventListener('click', () => api.createInvite());
 $('answerBtn').addEventListener('click', () => { if (pendingAsks().length) api.answer(); });
 $('askBtn').addEventListener('click', () => api.ask());
+$('boxTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-box]'); if (!b) return;
+  S.box = b.dataset.box; renderHome();
+});
 $('feed').addEventListener('click', e => {
   const da = e.target.closest('[data-del-ask]'); if (da) { const k = 'a:' + da.dataset.delAsk; S.delAsk = S.delAsk === k ? null : k; return renderHome(); }
   const ya = e.target.closest('[data-del-ask-yes]'); if (ya) { S.delAsk = null; return api.deleteAsk(ya.dataset.delAskYes); }

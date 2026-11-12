@@ -97,6 +97,15 @@ button:focus-visible{outline:3px solid var(--voice);outline-offset:3px}
 /* Messages */
 .msgs h3{margin:0;font-family:var(--display);font-weight:800;font-size:21px}
 .list{display:flex;flex-direction:column;gap:10px}
+/* 소식 안 보관함 탭: 안부 소식 / 받은 음성함(새 음성이 있으면 빨간 동그라미) / 보낸 음성함 */
+.boxtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--bg);border-radius:16px;padding:4px}
+.boxtabs button{position:relative;font:inherit;font-family:var(--display);font-size:15px;font-weight:800;border:0;background:none;color:var(--muted);
+  min-height:48px;padding:6px 2px;border-radius:12px;cursor:pointer;line-height:1.25;word-break:keep-all}
+.boxtabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(47,54,84,.15)}
+.boxtabs button[data-box="in"][aria-selected="true"]{color:#B0244F}
+.boxtabs button[data-box="out"][aria-selected="true"]{color:var(--ask)}
+.boxtabs .dot{position:absolute;top:-9px;right:-3px;z-index:1;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#E5242B;color:#fff;
+  font-size:13px;font-weight:900;line-height:22px;text-align:center;box-shadow:0 0 0 2px var(--surface)}
 .msg{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:20px;background:var(--voice-soft)}
 .play{flex:none;width:52px;height:52px;border-radius:50%;border:0;background:var(--voice);color:var(--voice-ink);cursor:pointer;display:grid;place-items:center}
 .play svg{width:20px;height:20px;margin-left:3px}
@@ -329,7 +338,12 @@ h1,h2,h3,h4,.big b,.clock b{letter-spacing:-.02em}
     <div class="panel notify" id="notifyCard" hidden></div>
     <div class="panel msgs">
       <h3>소식</h3>
-      <div class="list" id="feed"></div>
+      <div class="boxtabs" id="boxTabs" role="tablist" aria-label="소식 보기">
+        <button role="tab" data-box="feed" aria-selected="true">안부 소식</button>
+        <button role="tab" data-box="in" aria-selected="false">받은 음성함<span class="dot" id="inDot" hidden></span></button>
+        <button role="tab" data-box="out" aria-selected="false">보낸 음성함</button>
+      </div>
+      <div class="list" id="feed" role="tabpanel"></div>
     </div>
   </section>
 
