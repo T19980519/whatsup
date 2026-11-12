@@ -67,10 +67,14 @@ header span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
 @keyframes mo-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes mo-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
 
-/* 장면 1: 토론토 ↔ 서울 */
+/* 장면 1: 뉴욕 ↔ 서울 (도시 아이콘: 엠파이어 스테이트 빌딩 야경 / 남산 N서울타워) */
 .mo-two{display:flex;align-items:center;gap:6px}
-.mo-city{width:104px;border-radius:20px;padding:14px 6px;display:grid;justify-items:center;gap:2px}
-.mo-city svg{width:40px;height:40px;margin-bottom:4px}
+.mo-city{position:relative;width:min(104px,30vw);border-radius:20px;padding:14px 6px 12px;display:grid;justify-items:center;gap:2px}
+.mo-city .lm{width:56px;height:56px;margin-bottom:2px}
+.mo-city .tm{position:absolute;top:8px;right:8px;width:18px;height:18px}
+.mo-scene.on .mo-city .win{animation:mo-twinkle calc(var(--s) * .5) ease-in-out calc(var(--s) * .3) 2 alternate both}
+.mo-scene.on .mo-city .lamp{animation:mo-twinkle calc(var(--s) * .25) ease-in-out calc(var(--s) * .3) 4 alternate both}
+@keyframes mo-twinkle{from{opacity:1}to{opacity:.35}}
 .mo-city b{font-size:17px;font-weight:900}
 .mo-city span{font-size:14px;font-weight:700}
 .mo-city.night{background:#2F3654;color:#fff}
@@ -246,9 +250,16 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
 
       <div class="mo-scene s1">
         <div class="mo-vis" aria-hidden="true"><div class="mo-two">
-          <div class="mo-city night"><svg viewBox="0 0 24 24"><path fill="#FFD66B" d="M15 3a9 9 0 1 0 6.5 15.2A8 8 0 0 1 15 3z"/></svg><b>토론토</b><span>저녁 7:12</span></div>
+          <div class="mo-city night">
+            <svg class="tm" viewBox="0 0 24 24"><path fill="#FFD66B" d="M15 3a9 9 0 1 0 6.5 15.2A8 8 0 0 1 15 3z"/></svg>
+            <svg class="lm" viewBox="0 0 48 48"><g fill="#C9D3F5"><rect x="23.2" y="2" width="1.6" height="9"/><path d="M21 11h6v4h1.5v6H30v23H18V21h1.5v-6H21z"/><rect x="5" y="27" width="10" height="17"/><rect x="33" y="22" width="10" height="22"/><rect x="2" y="35" width="4" height="9"/><rect x="42" y="31" width="4" height="13"/></g>
+              <g class="win" fill="#FFD66B"><rect x="21" y="25" width="2" height="2"/><rect x="25" y="29" width="2" height="2"/><rect x="21" y="35" width="2" height="2"/><rect x="8" y="31" width="2" height="2"/><rect x="11" y="37" width="2" height="2"/><rect x="36" y="27" width="2" height="2"/><rect x="39" y="34" width="2" height="2"/></g></svg>
+            <b>뉴욕</b><span>저녁 7:12</span></div>
           <div class="mo-link"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7.5-4.6-7.5-10.5A4.5 4.5 0 0 1 12 7.6a4.5 4.5 0 0 1 7.5 2.9C19.5 16.4 12 21 12 21z"/></svg></div>
-          <div class="mo-city day"><svg viewBox="0 0 100 100"><g stroke="#F7B733" stroke-width="8" stroke-linecap="round"><path d="M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M19 81l8-8M73 27l8-8"/></g><circle cx="50" cy="50" r="24" fill="#FFD66B"/></svg><b>서울</b><span>아침 9:12</span></div>
+          <div class="mo-city day">
+            <svg class="tm" viewBox="0 0 100 100"><g stroke="#F7B733" stroke-width="9" stroke-linecap="round"><path d="M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M19 81l8-8M73 27l8-8"/></g><circle cx="50" cy="50" r="24" fill="#FFD66B"/></svg>
+            <svg class="lm" viewBox="0 0 48 48"><path fill="#9FD8B5" d="M0 44c6-9 14-13 24-13s18 4 24 13z"/><g fill="#5A4100"><rect x="23.3" y="2" width="1.4" height="9"/><rect x="19" y="11" width="10" height="5" rx="2"/><rect x="21" y="16" width="6" height="2"/><rect x="22.6" y="18" width="2.8" height="14"/><path d="M20 36l2.6-4h2.8l2.6 4z"/></g><circle class="lamp" cx="24" cy="2.5" r="1.6" fill="#E8587E"/></svg>
+            <b>서울</b><span>아침 9:12</span></div>
         </div></div>
         <div class="mo-cap"><b></b><small></small></div>
       </div>
@@ -365,7 +376,7 @@ h2{font-size:23px;font-weight:900;letter-spacing:-.4px;margin:34px 2px 10px;line
   const MOTION = {
     loop: true,
     scenes: [
-      { sec: 2, title: '멀리 사는 가족',           sub: '토론토 저녁 7시, 서울은 아침 9시' },
+      { sec: 2, title: '멀리 사는 가족',           sub: '뉴욕 저녁 7시, 서울은 아침 9시' },
       { sec: 3, title: '얼굴 누르고, 버튼 한 번',   sub: '"별일 없지?"가 바로 가요' },
       { sec: 3, title: '해님 터치로 "별일 없어요"', sub: '글자 입력이 필요 없어요' },
       { sec: 2, title: '버튼 한 번으로 안부',       sub: '무료 · 가입 없음 · 광고 없음' },
