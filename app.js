@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.14'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
+const APP_VERSION = '1.15'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -11,7 +11,7 @@ const VAPID_PUBLIC = 'BNl452H4EnbdOoXxKi7xdRhGaP-wrj4JDRo3jFo9gkFqOgC5GyURnyKD9N
 const MAX_MEMBERS = 8;      // 가족방 최대 인원
 const GREET_MAX = 5;        // 내 안부 목소리("별일 없지?") 최대 5초
 const MAX_REC = 60;         // 음성 1개당 최대 1분 (서버 저장 공간 아끼기)
-const KEEP_DAYS = 90;       // 음성 보관 기간
+const KEEP_DAYS = 30;       // 음성 보관 기간 (2026-11-13 대표 결정: 90일 → 30일)
 const QUOTA_MB = 1024;      // 무료 저장 공간 1GB
 const ASK_DAYS = 14;        // 소식에 보여줄 안부 기간
 

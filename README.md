@@ -9,7 +9,7 @@
 - 프로필 사진: 가족 편집에서 본인 사진 넣기·바꾸기·지우기 (앱에서 정사각형으로 줄여 비공개 저장, 같은 가족만 보기)
 - 알림: 새 안부·답장·목소리가 오면 푸시 알림, 아이콘 숫자 = 답 안 한 안부 + 안 들은 목소리 (아이폰은 홈 화면 앱 + 알림 허용 필요)
 - 안부 소리: 가족마다 내 목소리로 "별일 없지?"(5초)를 녹음해 두면, 안부를 받은 가족 앱에서 앱을 열 때·보고 있을 때 그 목소리 재생 (없으면 띵동). 이 폰에서 소리 켜기/끄기
-- 음성은 90일 보관: 90일이 지나면 매일 새벽 자동으로 파일과 기록을 모두 지움 (미리 알림 없음)
+- 음성은 30일 보관: 30일이 지나면 매일 새벽 자동으로 파일과 기록을 모두 지움 (미리 알림 없음)
 
 ## 서버 연결 (Supabase)
 SQL Editor에서 순서대로 실행: `supabase/schema.sql` → `supabase/03_v1_family.sql` → `supabase/04_avatars.sql` → `supabase/05_voice_1min_mp3.sql` → `supabase/06_push.sql` → `supabase/07_greetings.sql` → `supabase/08_cleanup.sql` → `supabase/09_delete_ask.sql` (02는 schema.sql에 포함, 08은 아래 cleanup 함수를 먼저 올린 뒤 실행).
@@ -19,8 +19,8 @@ Authentication → Allow anonymous sign-ins 켜기. 연결 정보는 `app.js` �
 - 코드: `supabase/functions/push/index.ts` — 대시보드 Edge Functions에서 이름 `push`로 올리고 JWT 확인(Verify JWT)은 끄기
 - Secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (공개 키는 `app.js`의 `VAPID_PUBLIC`과 같은 값, 비밀 키는 저장소에 넣지 않음)
 
-### 90일 자동 삭제 함수 (Edge Function `cleanup`)
-- 코드: `supabase/functions/cleanup/index.ts` — 대시보드 Edge Functions에서 이름 `cleanup`으로 올리고 JWT 확인(Verify JWT)은 끄기 (90일 지난 것만 지우므로 누가 불러도 안전)
+### 30일 자동 삭제 함수 (Edge Function `cleanup`)
+- 코드: `supabase/functions/cleanup/index.ts` — 대시보드 Edge Functions에서 이름 `cleanup`으로 올리고 JWT 확인(Verify JWT)은 끄기 (30일 지난 것만 지우므로 누가 불러도 안전)
 - 그다음 SQL Editor에서 `supabase/08_cleanup.sql` 실행 → 매일 한국 새벽 4시쯤 자동 실행
 - Secrets 추가 필요 없음
 

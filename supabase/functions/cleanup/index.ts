@@ -1,16 +1,16 @@
-// 별일없지? 90일 지난 목소리 지우기 (Supabase Edge Function "cleanup")
+// 별일없지? 30일 지난 목소리 지우기 (Supabase Edge Function "cleanup")
 // 하루에 한 번 데이터베이스 예약 작업이 이 함수를 불러요 (supabase/08_cleanup.sql).
-// 90일이 지난 목소리는 파일(저장소 voices)과 기록(voices 표, 들었음 표)을 모두 지워요.
+// 30일이 지난 목소리는 (2026-11-13: 90일 → 30일) 파일(저장소 voices)과 기록(voices 표, 들었음 표)을 모두 지워요.
 // 미리 알림은 보내지 않아요 (2026-11-11 대표 결정).
 //
 // SUPABASE_URL 과 SUPABASE_SERVICE_ROLE_KEY 는 Supabase가 자동으로 넣어 줘요.
-// 누가 불러도 안전해요: 받은 값은 쓰지 않고, 언제나 '90일 지난 것'만 지워요.
+// 누가 불러도 안전해요: 받은 값은 쓰지 않고, 언제나 '30일 지난 것'만 지워요.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY")!;
-const KEEP_DAYS = 90;
+const KEEP_DAYS = 30;
 const BATCH = 200;      // 한 번에 지우는 개수
 const MAX_ROUNDS = 25;  // 한 번 부를 때 최대 5,000개까지
 
@@ -40,7 +40,8 @@ Deno.serve(async () => {
 
       if (data.length < BATCH) break;
     }
-    return json({ ok: true, before, files, rows });
+    console.log("cleanup", { before, files, rows });
+    return json({ ok: true, keepDays: KEEP_DAYS, before, files, rows });
   } catch (e) {
     console.error("cleanup 실패", e);
     return json({ ok: false, files, rows, error: String((e as Error)?.message ?? e) }, 500);
