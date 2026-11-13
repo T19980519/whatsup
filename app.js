@@ -1,7 +1,7 @@
 // 별일없지? v1.0 — 멀리 떨어진 가족끼리 안부를 묻고 짧은 목소리를 주고받는 앱
 // 서버: Supabase (supabase/schema.sql → 02 → 03 순서로 설정)
 
-const APP_VERSION = '1.15'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
+const APP_VERSION = '1.16'; // 새 버전을 올릴 때는 여기와 version.json 두 곳을 같이 바꿔요
 // publishable key는 앱에 공개돼도 되는 키예요. secret key는 절대 넣지 마세요.
 const SUPABASE_URL = 'https://uzlfzlskilcfkpvgmqcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pfOLq5e0i9NnI9ihQrwvtw_7_llihCw';
@@ -317,6 +317,7 @@ function renderSheet() {
     return;
   }
   const m = memberOf(S.sheet.id);
+  const toMe = S.voices.filter(v => v.to_id === m.id && v.sender_id === S.me.id); // 내보내면 함께 지워질 내 음성
   if (!m) { S.sheet = null; return renderSheet(); }
   const canRemove = isAdmin() && m.id !== S.me.id;
   const self = m.id === S.me.id, hasPhoto = !!m.avatar_path;
@@ -332,6 +333,8 @@ function renderSheet() {
     '<div class="row"><button class="btn btn-sun" data-act="save">저장</button><button class="btn btn-ghost" data-act="close">취소</button></div>' +
     (m.role === 'admin' ? '<p class="sub" style="font-size:13px;margin:0">방장은 가족방에서 내보낼 수 없어요.</p>' : !canRemove ? '' : S.sheet.confirm
       ? '<div class="confirm"><span><b>' + esc(obj(m.name)) + '</b> 가족방에서 내보낼까요? 그 폰에서는 바로 접속이 끊겨요. 다시 들어오려면 새로 초대해야 해요.</span>' +
+        '<p class="warn-del"><b>함께 지워져요 (되돌릴 수 없어요)</b>' + esc(subj(m.name)) + ' 받은 1:1 음성과 주고받은 안부 기록이 모두의 화면에서 사라져요.' +
+        (toMe.length ? ' 그중 내가 보낸 음성은 <b>' + toMe.length + '개</b>예요.' : '') + '</p>' +
         '<div class="row"><button class="btn btn-danger-solid" data-act="remove">내보내기</button><button class="btn btn-ghost" data-act="cancelRemove">그대로 두기</button></div></div>'
       : '<button class="btn btn-danger" data-act="askRemove">가족방에서 내보내기</button>') + '</div>';
 }
